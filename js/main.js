@@ -1,438 +1,251 @@
-/* Dreamland Co. – site script (vanilla JS, no build step) */
+/* Dreamland Co. – site script (vanilla JS, no build step)
+   Loaded on every page after js/data.js and js/i18n.js. */
 (function () {
   'use strict';
 
   /* ------------------------------------------------------------------
-     Contacts and products
+     Settings
      ------------------------------------------------------------------ */
+
+  // ▼▼▼ PASTE YOUR WEB3FORMS ACCESS KEY HERE (free at https://web3forms.com) ▼▼▼
+  var WEB3FORMS_ACCESS_KEY = "PASTE_KEY_HERE";
+  // ▲▲▲ Call-back requests are emailed to the address you register the key with. ▲▲▲
+
   var WA_DEFAULT = '27823358384'; // Gousia
-  var PRODUCTS = {
-    soft:   { price: 'R230', colour: 'blue',   dot: 'dot-blue',   accent: '--c-blue' },
-    medium: { price: 'R240', colour: 'green',  dot: 'dot-green',  accent: '--c-green' },
-    firm:   { price: 'R250', colour: 'orange', dot: 'dot-orange', accent: '--c-orange' },
-    xfirm:  { price: 'R260', colour: 'red',    dot: 'dot-red',    accent: '--c-red' },
-    knee:   { price: 'R85' }
-  };
-  var QUIZ_ORDER = ['soft', 'medium', 'firm', 'xfirm'];
-
-  /* ------------------------------------------------------------------
-     Translations – edit text here. Keys match data-i18n attributes.
-     ------------------------------------------------------------------ */
-  var I18N = {
-    en: {
-      'skip': 'Skip to content',
-      'menu': 'Menu',
-      'nav.code': 'Colour code',
-      'nav.shop': 'Pillows',
-      'nav.quiz': 'Find yours',
-      'nav.why': 'Why Dreamland',
-      'nav.gallery': 'Gallery',
-      'nav.stockists': 'Stockists',
-      'nav.bulk': 'Bulk orders',
-      'nav.contact': 'Order',
-
-      'hero.eyebrow': 'Dreamland – The Colour Coded Pillow',
-      'hero.title': 'Your sleeping partner for life',
-      'hero.lead': 'Premium pillows with an embroidered colour code that tells you the firmness at a glance. Pick your colour, sleep easy.',
-      'hero.find': 'Find your pillow',
-      'btn.order': 'Order on WhatsApp',
-
-      'name.soft': 'Soft',
-      'name.medium': 'Medium',
-      'name.firm': 'Firm',
-      'name.xfirm': 'Extra Firm',
-      'name.knee': 'Knee pillow',
-      'colour.blue': 'Blue',
-      'colour.green': 'Green',
-      'colour.orange': 'Orange',
-      'colour.red': 'Red',
-
-      'code.eyebrow': 'How it works',
-      'code.title': 'The colour code, explained',
-      'code.intro': 'Every Dreamland pillow carries an embroidered label. The colour tells you the firmness, and the firmer the pillow, the more filling inside.',
-      'code.softer': 'Softer',
-      'code.firmer': 'Firmer',
-      'code.note': 'Fill weight is Unicurl Deluxe fibre per pillow. More fill = a fuller, firmer pillow.',
-
-      'shop.eyebrow': 'Shop',
-      'shop.title': 'Our pillows',
-      'shop.intro': "Order directly from us on WhatsApp, by phone or by email. We'll confirm stock, payment and delivery or collection with you personally.",
-      'tag.soft': 'Blue label · 600g fill',
-      'tag.medium': 'Green label · 700g fill',
-      'tag.firm': 'Orange label · 800g fill',
-      'tag.xfirm': 'Red label · 900g fill',
-      'tag.knee': 'Comfort extra',
-      'desc.soft': 'Light and gentle, for those who like to sink in.',
-      'desc.medium': 'Balanced support. Our most versatile choice.',
-      'desc.firm': 'Fuller and more supportive, and holds its height.',
-      'desc.xfirm': 'Our fullest pillow, for those who like it firm.',
-      'desc.knee': 'A smaller pillow to place between or under your knees for extra comfort. A lovely companion to any Dreamland pillow.',
-
-      'quiz.eyebrow': 'Not sure which colour?',
-      'quiz.title': 'Find your pillow',
-      'quiz.intro': "Three quick questions and we'll suggest a colour to start with.",
-      'quiz.q1': '1. How do you usually sleep?',
-      'quiz.side': 'On my side',
-      'quiz.back': 'On my back',
-      'quiz.stomach': 'On my stomach',
-      'quiz.q2': '2. How do you like a pillow to feel?',
-      'quiz.softer': 'Softer',
-      'quiz.unsure': 'Not sure',
-      'quiz.firmer': 'Firmer',
-      'quiz.q3': '3. Do you sleep with one pillow or two?',
-      'quiz.one': 'One',
-      'quiz.two': 'Two, stacked',
-      'quiz.error': 'Please answer all three questions.',
-      'quiz.submit': 'Show my pillow',
-      'quiz.resultLabel': "We'd suggest",
-      'quiz.why.soft': 'A lower, softer pillow suits many stomach sleepers, people who stack two pillows, and anyone who likes to sink in.',
-      'quiz.why.medium': 'A good middle ground that suits many back sleepers and anyone who wants a bit of everything.',
-      'quiz.why.firm': 'A fuller pillow suits many side sleepers who like a little more height under the head.',
-      'quiz.why.xfirm': 'Our fullest pillow, for side sleepers who like a high, firm pillow.',
-      'quiz.disclaimer': 'This is a general comfort guide, not medical advice. Everyone is different, so feel free to ask us.',
-
-      'why.eyebrow': 'Quality you can feel',
-      'why.title': 'Why Dreamland',
-      'why.intro': 'Thoughtfully made pillows, finished with care, down to the embroidered label.',
-      'f.fluff': 'Retains fluffiness',
-      'f.fluffD': 'Keeps its loft night after night.',
-      'f.wash': 'Washable',
-      'f.washD': 'Easy to keep fresh.',
-      'f.soft': 'Soft & light',
-      'f.softD': 'Comfortable and easy to handle.',
-      'f.allergy': 'Hypoallergenic',
-      'f.allergyD': 'Made with hypoallergenic materials.',
-      'f.twill': 'Supreme twill casing',
-      'f.twillD': 'A smooth, durable twill cover with a neat zip.',
-      'f.breath': 'Natural breathing',
-      'f.breathD': 'Lets air flow for a fresher feel.',
-      'f.fill': 'Unicurl Deluxe filling',
-      'f.fillD': 'Springy fibre filling that holds its shape.',
-      'cap.labels': 'Embroidered, never printed',
-      'cap.tag': 'A colour tab on every seam',
-      'cap.zip': 'Supreme twill casing',
-
-      'gallery.eyebrow': 'Gallery',
-      'gallery.title': 'Made for restful bedrooms',
-
-      'stock.eyebrow': 'Buy in store',
-      'stock.title': 'Also available at',
-      'stock.intro': "Prefer to feel before you buy? Visit one of our stockists in Newcastle, Wakkerstroom, Standerton, Ermelo and Volksrust. It's a good idea to phone ahead to check stock.",
-
-      'bulk.eyebrow': 'For hospitality',
-      'bulk.title': 'Bulk orders for guesthouses & hotels',
-      'bulk.intro': 'Kitting out a guesthouse, B&B, lodge or hotel? We supply in bulk, and the colour code makes it easy for guests to find the pillow they like.',
-      'bulk.p1': 'Mix and match firmness levels per room',
-      'bulk.p2': 'Consistent quality across every bed',
-      'bulk.p3': 'Deal directly with the owners',
-      'bulk.cta': 'Ask for a bulk quote',
-      'bulk.email': 'Email us',
-
-      'contact.eyebrow': 'Order or ask a question',
-      'contact.title': 'Get in touch',
-      'contact.intro': "There's no online checkout. Simply WhatsApp, call or email us and we'll sort out your order personally.",
-      'form.title': 'Order / enquiry form',
-      'form.help': 'Fill this in and tap send. It opens WhatsApp with your message ready to go.',
-      'form.name': 'Name',
-      'form.phone': 'Phone number',
-      'form.pillow': 'Pillow',
-      'form.choose': 'Choose…',
-      'form.qty': 'Quantity',
-      'form.town': 'Town',
-      'form.msg': 'Message (optional)',
-      'form.to': 'Send to',
-      'form.error': 'Please add your name and choose a pillow.',
-      'form.send': 'Send on WhatsApp',
-      'opt.soft': 'Soft (Blue) – R230',
-      'opt.medium': 'Medium (Green) – R240',
-      'opt.firm': 'Firm (Orange) – R250',
-      'opt.xfirm': 'Extra Firm (Red) – R260',
-      'opt.knee': 'Knee pillow – R85',
-      'opt.mixed': 'A mix / not sure yet',
-
-      'footer.area': 'Colour coded pillows from a small South African business. Find us in Newcastle, Wakkerstroom, Standerton, Ermelo and Volksrust, or order direct.',
-      'footer.contact': 'Contact',
-      'footer.explore': 'Explore',
-      'footer.rights': 'All rights reserved.',
-
-      'lb.close': 'Close',
-      'lb.prev': 'Previous photo',
-      'lb.next': 'Next photo',
-
-      'alt.hero': 'Four Dreamland pillows lined up on a bed against a grey tufted headboard, with blue, green, orange and red embroidered labels',
-      'alt.soft': 'Dreamland Soft pillow with a blue embroidered label',
-      'alt.medium': 'Dreamland Medium pillow with a green embroidered label',
-      'alt.firm': 'Dreamland Firm pillow with an orange embroidered label',
-      'alt.xfirm': 'Dreamland Extra Firm pillow with a red embroidered label',
-      'alt.knee': 'Dreamland knee pillow in its branded packaging',
-      'alt.labels': 'Close-up of the four embroidered Dreamland labels: Soft (Blue), Medium (Green), Firm (Orange) and X Firm (Red)',
-      'alt.tag': 'Sewn-in Dreamland Co. care label with a red colour tab on the pillow seam',
-      'alt.zip': 'White twill pillow casing with a neat concealed zip',
-      'g.1': 'Four Dreamland pillows standing upright against a tufted headboard',
-      'g.2': 'Close angled view of the four colour coded pillows',
-      'g.3': 'Soft, Medium, Firm and Extra Firm pillows lined up on a white bed',
-      'g.4': 'Three Dreamland pillows in front of a grey headboard',
-      'g.5': 'Medium pillow folded to show its green embroidered label',
-      'g.6': 'Extra Firm pillow folded to show its red embroidered label',
-      'g.7': 'Dreamland pillows in their branded retail packaging',
-      'g.8': 'A made bed styled with plump white Dreamland pillows',
-      'g.9': 'White pillows arranged on a bed with a lace runner',
-      'g.10': 'Three white pillows stacked on a bed',
-      'g.11': 'Two Dreamland care labels with colour tabs',
-      'g.12': 'A stack of packaged Dreamland pillows ready for delivery',
-
-      // WhatsApp messages
-      'wa.general': "Hi Dreamland Co., I'd like to place an order.",
-      'wa.product': "Hi Dreamland Co., I'd like to order the {item} – {price}.",
-      'wa.bulk': "Hi Dreamland Co., I'd like a quote for a bulk pillow order for my guesthouse / B&B / lodge / hotel.",
-      'wa.item.soft': 'Soft (Blue) pillow',
-      'wa.item.medium': 'Medium (Green) pillow',
-      'wa.item.firm': 'Firm (Orange) pillow',
-      'wa.item.xfirm': 'Extra Firm (Red) pillow',
-      'wa.item.knee': 'Knee pillow',
-      'wa.form.intro': "Hi Dreamland Co., I'd like to order:",
-      'wa.form.pillow': 'Pillow',
-      'wa.form.qty': 'Quantity',
-      'wa.form.name': 'Name',
-      'wa.form.phone': 'Phone',
-      'wa.form.town': 'Town',
-      'wa.form.msg': 'Message',
-
-      'meta.title': 'Dreamland Co. | Colour Coded Pillows | Your sleeping partner for life'
-    },
-
-    af: {
-      'skip': 'Gaan na inhoud',
-      'menu': 'Kieslys',
-      'nav.code': 'Kleurkode',
-      'nav.shop': 'Kussings',
-      'nav.quiz': 'Vind joune',
-      'nav.why': 'Hoekom Dreamland',
-      'nav.gallery': 'Galery',
-      'nav.stockists': 'Verkooppunte',
-      'nav.bulk': 'Grootmaat',
-      'nav.contact': 'Bestel',
-
-      'hero.eyebrow': 'Dreamland – Die Kleurgekodeerde Kussing',
-      'hero.title': 'Jou slaapmaat vir die lewe',
-      'hero.lead': "Premium kussings met 'n geborduurde kleurkode wat jou die fermheid in een oogopslag wys. Kies jou kleur en slaap rustig.",
-      'hero.find': 'Vind jou kussing',
-      'btn.order': 'Bestel op WhatsApp',
-
-      'name.soft': 'Sag',
-      'name.medium': 'Medium',
-      'name.firm': 'Ferm',
-      'name.xfirm': 'Extra Ferm',
-      'name.knee': 'Kniekussing',
-      'colour.blue': 'Blou',
-      'colour.green': 'Groen',
-      'colour.orange': 'Oranje',
-      'colour.red': 'Rooi',
-
-      'code.eyebrow': 'Hoe dit werk',
-      'code.title': 'Die kleurkode verduidelik',
-      'code.intro': "Elke Dreamland-kussing het 'n geborduurde etiket. Die kleur wys die fermheid, en hoe fermer die kussing, hoe meer vulsel binne-in.",
-      'code.softer': 'Sagter',
-      'code.firmer': 'Fermer',
-      'code.note': "Die gewig is Unicurl Deluxe-vulsel per kussing. Meer vulsel = 'n voller, fermer kussing.",
-
-      'shop.eyebrow': 'Winkel',
-      'shop.title': 'Ons kussings',
-      'shop.intro': 'Bestel direk by ons op WhatsApp, per telefoon of e-pos. Ons bevestig voorraad, betaling en aflewering of afhaal persoonlik met jou.',
-      'tag.soft': 'Blou etiket · 600g vulsel',
-      'tag.medium': 'Groen etiket · 700g vulsel',
-      'tag.firm': 'Oranje etiket · 800g vulsel',
-      'tag.xfirm': 'Rooi etiket · 900g vulsel',
-      'tag.knee': 'Ekstra gemak',
-      'desc.soft': 'Lig en sag, vir dié wat graag wegsink.',
-      'desc.medium': 'Gebalanseerde steun. Ons mees veelsydige keuse.',
-      'desc.firm': 'Voller en meer ondersteunend, en behou sy hoogte.',
-      'desc.xfirm': 'Ons volste kussing, vir dié wat dit ferm verkies.',
-      'desc.knee': "'n Kleiner kussing om tussen of onder jou knieë te plaas vir ekstra gemak. 'n Lekker maatjie vir enige Dreamland-kussing.",
-
-      'quiz.eyebrow': 'Nie seker watter kleur nie?',
-      'quiz.title': 'Vind jou kussing',
-      'quiz.intro': "Drie vinnige vrae en ons stel 'n kleur voor om mee te begin.",
-      'quiz.q1': '1. Hoe slaap jy gewoonlik?',
-      'quiz.side': 'Op my sy',
-      'quiz.back': 'Op my rug',
-      'quiz.stomach': 'Op my maag',
-      'quiz.q2': '2. Hoe moet jou kussing voel?',
-      'quiz.softer': 'Sagter',
-      'quiz.unsure': 'Nie seker nie',
-      'quiz.firmer': 'Fermer',
-      'quiz.q3': '3. Slaap jy met een kussing of twee?',
-      'quiz.one': 'Een',
-      'quiz.two': 'Twee, op mekaar',
-      'quiz.error': 'Beantwoord asseblief al drie vrae.',
-      'quiz.submit': 'Wys my kussing',
-      'quiz.resultLabel': 'Ons stel voor',
-      'quiz.why.soft': "'n Laer, sagter kussing pas baie maagslapers, mense wat twee kussings op mekaar gebruik, en enigiemand wat graag wegsink.",
-      'quiz.why.medium': "'n Goeie middeweg wat baie rugslapers pas, en enigiemand wat van alles 'n bietjie wil hê.",
-      'quiz.why.firm': "'n Voller kussing pas baie syslapers wat 'n bietjie meer hoogte onder die kop verkies.",
-      'quiz.why.xfirm': "Ons volste kussing, vir syslapers wat van 'n hoë, ferm kussing hou.",
-      'quiz.disclaimer': "Dit is 'n algemene gemaksgids, nie mediese advies nie. Almal is anders, so vra ons gerus.",
-
-      'why.eyebrow': 'Gehalte wat jy kan voel',
-      'why.title': 'Hoekom Dreamland',
-      'why.intro': 'Kussings wat met sorg gemaak en afgewerk is, tot by die geborduurde etiket.',
-      'f.fluff': 'Behou vorm',
-      'f.fluffD': 'Bly nag na nag vol en donsig.',
-      'f.wash': 'Wasbaar',
-      'f.washD': 'Maklik om vars te hou.',
-      'f.soft': 'Sag & lig',
-      'f.softD': 'Gemaklik en maklik om te hanteer.',
-      'f.allergy': 'Anti-allergies',
-      'f.allergyD': 'Gemaak met anti-allergiese materiaal.',
-      'f.twill': 'Supreme twill sloop',
-      'f.twillD': "'n Gladde, duursame twill-sloop met 'n netjiese rits.",
-      'f.breath': 'Natuurlike asemhaling',
-      'f.breathD': "Laat lug deur vir 'n varser gevoel.",
-      'f.fill': 'Unicurl Deluxe vulsel',
-      'f.fillD': 'Veerkragtige veselvulsel wat sy vorm behou.',
-      'cap.labels': 'Geborduur, nooit gedruk nie',
-      'cap.tag': "'n Kleuroortjie op elke soom",
-      'cap.zip': 'Supreme twill sloop',
-
-      'gallery.eyebrow': 'Galery',
-      'gallery.title': 'Gemaak vir rustige slaapkamers',
-
-      'stock.eyebrow': 'Koop in die winkel',
-      'stock.title': 'Ook beskikbaar by',
-      'stock.intro': 'Wil jy eers voel voor jy koop? Besoek een van ons verkooppunte in Newcastle, Wakkerstroom, Standerton, Ermelo en Volksrust. Bel gerus vooraf om voorraad te bevestig.',
-
-      'bulk.eyebrow': 'Vir gasvryheid',
-      'bulk.title': 'Grootmaatbestellings vir gastehuise en hotelle',
-      'bulk.intro': "Rig jy 'n gastehuis, B&B, lodge of hotel in? Ons verskaf in grootmaat, en die kleurkode maak dit maklik vir gaste om die kussing te kies waarvan hulle hou.",
-      'bulk.p1': 'Meng en pas fermheidsvlakke per kamer',
-      'bulk.p2': 'Eenvormige gehalte op elke bed',
-      'bulk.p3': 'Handel direk met die eienaars',
-      'bulk.cta': "Vra vir 'n grootmaatkwotasie",
-      'bulk.email': 'Stuur vir ons e-pos',
-
-      'contact.eyebrow': "Bestel of vra 'n vraag",
-      'contact.title': 'Kontak ons',
-      'contact.intro': 'Daar is geen aanlyn betaalpunt nie. WhatsApp, bel of e-pos ons eenvoudig en ons reël jou bestelling persoonlik.',
-      'form.title': 'Bestel- / navraagvorm',
-      'form.help': 'Vul dit in en tik stuur. Dit maak WhatsApp oop met jou boodskap gereed.',
-      'form.name': 'Naam',
-      'form.phone': 'Telefoonnommer',
-      'form.pillow': 'Kussing',
-      'form.choose': 'Kies…',
-      'form.qty': 'Hoeveelheid',
-      'form.town': 'Dorp',
-      'form.msg': 'Boodskap (opsioneel)',
-      'form.to': 'Stuur na',
-      'form.error': 'Vul asseblief jou naam in en kies \'n kussing.',
-      'form.send': 'Stuur op WhatsApp',
-      'opt.soft': 'Sag (Blou) – R230',
-      'opt.medium': 'Medium (Groen) – R240',
-      'opt.firm': 'Ferm (Oranje) – R250',
-      'opt.xfirm': 'Extra Ferm (Rooi) – R260',
-      'opt.knee': 'Kniekussing – R85',
-      'opt.mixed': "'n Mengsel / nog nie seker nie",
-
-      'footer.area': "Kleurgekodeerde kussings van 'n klein Suid-Afrikaanse besigheid. Kry ons in Newcastle, Wakkerstroom, Standerton, Ermelo en Volksrust, of bestel direk.",
-      'footer.contact': 'Kontak',
-      'footer.explore': 'Verken',
-      'footer.rights': 'Alle regte voorbehou.',
-
-      'lb.close': 'Maak toe',
-      'lb.prev': 'Vorige foto',
-      'lb.next': 'Volgende foto',
-
-      'alt.hero': "Vier Dreamland-kussings langs mekaar op 'n bed teen 'n grys kopstuk, met blou, groen, oranje en rooi geborduurde etikette",
-      'alt.soft': "Dreamland Sag-kussing met 'n blou geborduurde etiket",
-      'alt.medium': "Dreamland Medium-kussing met 'n groen geborduurde etiket",
-      'alt.firm': "Dreamland Ferm-kussing met 'n oranje geborduurde etiket",
-      'alt.xfirm': "Dreamland Extra Ferm-kussing met 'n rooi geborduurde etiket",
-      'alt.knee': 'Dreamland-kniekussing in sy verpakking',
-      'alt.labels': 'Nabyskoot van die vier geborduurde Dreamland-etikette: Sag (Blou), Medium (Groen), Ferm (Oranje) en Extra Ferm (Rooi)',
-      'alt.tag': "Ingewerkte Dreamland Co.-etiket met 'n rooi kleuroortjie op die kussing se soom",
-      'alt.zip': "Wit twill-kussingsloop met 'n netjiese versteekte rits",
-      'g.1': "Vier Dreamland-kussings wat regop teen 'n kopstuk staan",
-      'g.2': 'Nabyskoot van die vier kleurgekodeerde kussings',
-      'g.3': "Sag, Medium, Ferm en Extra Ferm kussings langs mekaar op 'n wit bed",
-      'g.4': "Drie Dreamland-kussings voor 'n grys kopstuk",
-      'g.5': 'Medium-kussing gevou om sy groen geborduurde etiket te wys',
-      'g.6': 'Extra Ferm-kussing gevou om sy rooi geborduurde etiket te wys',
-      'g.7': 'Dreamland-kussings in hul verpakking',
-      'g.8': "'n Opgemaakte bed met vol wit Dreamland-kussings",
-      'g.9': "Wit kussings op 'n bed met 'n kantloper",
-      'g.10': "Drie wit kussings op mekaar op 'n bed",
-      'g.11': 'Twee Dreamland-etikette met kleuroortjies',
-      'g.12': "'n Stapel verpakte Dreamland-kussings gereed vir aflewering",
-
-      'wa.general': "Hallo Dreamland Co., ek wil graag 'n bestelling plaas.",
-      'wa.product': 'Hallo Dreamland Co., ek wil graag die {item} bestel – {price}.',
-      'wa.bulk': "Hallo Dreamland Co., ek wil graag 'n kwotasie hê vir 'n grootmaatbestelling kussings vir my gastehuis / B&B / lodge / hotel.",
-      'wa.item.soft': 'Sag (Blou) kussing',
-      'wa.item.medium': 'Medium (Groen) kussing',
-      'wa.item.firm': 'Ferm (Oranje) kussing',
-      'wa.item.xfirm': 'Extra Ferm (Rooi) kussing',
-      'wa.item.knee': 'Kniekussing',
-      'wa.form.intro': 'Hallo Dreamland Co., ek wil graag bestel:',
-      'wa.form.pillow': 'Kussing',
-      'wa.form.qty': 'Hoeveelheid',
-      'wa.form.name': 'Naam',
-      'wa.form.phone': 'Telefoon',
-      'wa.form.town': 'Dorp',
-      'wa.form.msg': 'Boodskap',
-
-      'meta.title': 'Dreamland Co. | Kleurgekodeerde Kussings | Jou slaapmaat vir die lewe'
-    }
-  };
+  var PRODUCTS = window.DREAMLAND_PRODUCTS || [];
+  var STOCKISTS = window.DREAMLAND_STOCKISTS || [];
+  var I18N = window.DREAMLAND_I18N || { en: {}, af: {} };
 
   var LANG_KEY = 'dreamland-lang';
   var HTML_LANG = { en: 'en-ZA', af: 'af' };
   var lang = 'en';
 
+  function findProduct(id) {
+    for (var i = 0; i < PRODUCTS.length; i++) if (PRODUCTS[i].id === id) return PRODUCTS[i];
+    return null;
+  }
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function fill(str, vars) {
+    return str.replace(/\{(\w+)\}/g, function (m, k) { return vars[k] != null ? vars[k] : m; });
+  }
+  function rand(n) { return 'R' + n; }
+  function loc(obj) { return obj ? (obj[lang] || obj.en) : ''; }
+
+  /* ------------------------------------------------------------------
+     Translation
+     English for static text comes from the HTML (captured once below);
+     Afrikaans comes from js/i18n.js.
+     ------------------------------------------------------------------ */
   function t(key) {
-    var dict = I18N[lang] || I18N.en;
-    return dict[key] != null ? dict[key] : (I18N.en[key] != null ? I18N.en[key] : key);
+    var d = I18N[lang] || {};
+    if (d[key] != null) return d[key];
+    if (I18N.en[key] != null) return I18N.en[key];
+    return key;
   }
 
+  var originals = [];
+  function captureOriginals(root) {
+    root.querySelectorAll('[data-i18n]').forEach(function (el) {
+      originals.push({ el: el, type: 'text', key: el.getAttribute('data-i18n'), en: el.textContent });
+    });
+    root.querySelectorAll('[data-i18n-alt]').forEach(function (el) {
+      originals.push({ el: el, type: 'alt', key: el.getAttribute('data-i18n-alt'), en: el.alt });
+    });
+    root.querySelectorAll('[data-i18n-aria]').forEach(function (el) {
+      originals.push({ el: el, type: 'aria', key: el.getAttribute('data-i18n-aria'), en: el.getAttribute('aria-label') });
+    });
+  }
+
+  function translateStatic() {
+    originals.forEach(function (o) {
+      var value = lang === 'en' ? o.en : ((I18N[lang] || {})[o.key] || o.en);
+      if (o.type === 'text') {
+        if (lang === 'en' && o.el.textContent === value) return; // keep untouched (and its EDIT comments)
+        o.el.textContent = value;
+      } else if (o.type === 'alt') {
+        o.el.alt = value;
+      } else {
+        o.el.setAttribute('aria-label', value);
+      }
+    });
+  }
+
+  /* ------------------------------------------------------------------
+     WhatsApp links
+     ------------------------------------------------------------------ */
   function waUrl(text, to) {
     return 'https://wa.me/' + (to || WA_DEFAULT) + '?text=' + encodeURIComponent(text);
   }
-
-  function productMessage(id) {
-    return t('wa.product').replace('{item}', t('wa.item.' + id)).replace('{price}', PRODUCTS[id].price);
+  function itemName(p) {
+    return p.colour ? loc(p.name) + ' (' + loc(p.colour) + ') ' + t('pd.pillow') : loc(p.name);
   }
-
+  function productMessage(p) {
+    return fill(t('wa.product'), { item: itemName(p), price: rand(p.price) });
+  }
   function waMessageFor(kind) {
-    if (kind === 'general') return t('wa.general');
+    var p = findProduct(kind);
+    if (p) return productMessage(p);
     if (kind === 'bulk') return t('wa.bulk');
-    if (PRODUCTS[kind]) return productMessage(kind);
+    if (kind === 'callback') return t('wa.callback');
     return t('wa.general');
   }
-
   function updateWhatsAppLinks() {
     document.querySelectorAll('[data-wa]').forEach(function (a) {
       a.href = waUrl(waMessageFor(a.getAttribute('data-wa')), a.getAttribute('data-wa-to'));
     });
   }
 
+  /* ------------------------------------------------------------------
+     Rendering from js/data.js
+     ------------------------------------------------------------------ */
+  function picture(base, alt, sizes, eager) {
+    return '<picture>' +
+      '<source type="image/webp" srcset="images/' + base + '-800.webp 800w, images/' + base + '-1600.webp 1600w" sizes="' + sizes + '">' +
+      '<img src="images/' + base + '-800.jpg" srcset="images/' + base + '-800.jpg 800w, images/' + base + '-1600.jpg 1600w" sizes="' + sizes + '"' +
+      ' width="1600" height="1067"' + (eager ? '' : ' loading="lazy"') + ' decoding="async" alt="' + esc(alt) + '">' +
+      '</picture>';
+  }
+
+  function firmnessMeter(p) {
+    if (!p.firmness) return '';
+    var pips = '';
+    for (var i = 1; i <= 4; i++) pips += '<span class="pip' + (i <= p.firmness ? ' on' : '') + '"></span>';
+    return '<span class="meter" role="img" aria-label="' + esc(fill(t('card.firmness'), { n: p.firmness })) + '">' + pips + '</span>';
+  }
+
+  function cardTag(p) {
+    return p.colour ? fill(t('card.tag'), { colour: loc(p.colour), weight: p.weight }) : t('card.tagKnee');
+  }
+
+  function orderButton(p, extraClass) {
+    return '<a class="btn btn-whatsapp ' + (extraClass || '') + '" href="' + esc(waUrl(productMessage(p))) + '" target="_blank" rel="noopener">' +
+      '<svg class="icon" aria-hidden="true"><use href="#i-whatsapp"/></svg><span>' + esc(t('btn.order')) + '</span></a>';
+  }
+
+  function renderProductCards(el) {
+    el.innerHTML = PRODUCTS.map(function (p) {
+      return '<article class="product-card" style="--accent: var(' + p.accent + ')">' +
+        picture(p.images[0], loc(p.alt)[0], '(min-width: 1150px) 20vw, (min-width: 640px) 50vw, 100vw') +
+        '<div class="product-body">' +
+          '<p class="product-tag"><span class="dot" style="background: var(' + p.accent + ')"></span>' + esc(cardTag(p)) + '</p>' +
+          '<h3>' + esc(loc(p.name)) + '</h3>' +
+          firmnessMeter(p) +
+          '<p class="product-desc">' + esc(loc(p.summary)) + '</p>' +
+          '<p class="price">' + rand(p.price) + '</p>' +
+          '<div class="product-actions">' +
+            '<a class="btn btn-outline btn-sm" href="products.html#' + p.id + '">' + esc(t('btn.details')) +
+              '<span class="visually-hidden">: ' + esc(loc(p.name)) + '</span></a>' +
+            orderButton(p, 'btn-sm') +
+          '</div>' +
+        '</div>' +
+      '</article>';
+    }).join('');
+  }
+
+  function renderProductDetails(el) {
+    el.innerHTML = PRODUCTS.map(function (p, i) {
+      var alts = loc(p.alt);
+      var media = '<div class="pd-media">' + picture(p.images[0], alts[0], '(min-width: 900px) 50vw, 100vw') +
+        (p.images[1] ? '<div class="pd-thumb">' + picture(p.images[1], alts[1], '(min-width: 900px) 25vw, 50vw') + '</div>' : '') +
+        '</div>';
+
+      var specs = '<dl class="pd-specs">' +
+        (p.firmness ? '<div><dt>' + esc(t('pd.firmness')) + '</dt><dd>' + firmnessMeter(p) + ' ' + esc(loc(p.name)) + '</dd></div>' : '') +
+        (p.colour ? '<div><dt>' + esc(t('pd.label')) + '</dt><dd><span class="dot" style="background: var(' + p.accent + ')"></span> ' + esc(loc(p.colour)) + '</dd></div>' : '') +
+        (p.weight ? '<div><dt>' + esc(t('pd.weight')) + '</dt><dd>' + esc(fill(t('pd.weightValue'), { weight: p.weight })) + '</dd></div>'
+                  : '<div><dt>' + esc(t('pd.use')) + '</dt><dd>' + esc(t('pd.kneeUse')) + '</dd></div>') +
+        '<div><dt>' + esc(t('pd.price')) + '</dt><dd class="price">' + rand(p.price) + '</dd></div>' +
+        '</dl>';
+
+      var features = '<ul class="pd-features">' + p.features.map(function (f) {
+        return '<li><svg class="icon" aria-hidden="true"><use href="#i-' + f + '"/></svg>' + esc(t('f.' + f)) + '</li>';
+      }).join('') + '</ul>';
+
+      var suits = '<ul class="tick-list">' + loc(p.suits).map(function (s) {
+        return '<li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span>' + esc(s) + '</span></li>';
+      }).join('') + '</ul>';
+
+      return '<section class="product-detail' + (i % 2 ? ' is-flipped' : '') + '" id="' + p.id + '" style="--accent: var(' + p.accent + ')" aria-labelledby="pd-' + p.id + '">' +
+        '<div class="container pd-inner">' + media +
+          '<div class="pd-info">' +
+            '<p class="eyebrow pd-eyebrow"><span class="dot" style="background: var(' + p.accent + ')"></span>' + esc(cardTag(p)) + '</p>' +
+            '<h2 id="pd-' + p.id + '">' + esc(loc(p.name)) + '</h2>' +
+            '<p class="lead">' + esc(loc(p.summary)) + '</p>' +
+            specs +
+            '<div class="pd-columns">' +
+              '<div><h3>' + esc(t('pd.features')) + '</h3>' + features + '</div>' +
+              '<div><h3>' + esc(t('pd.suits')) + '</h3>' + suits + '<p class="small muted">' + esc(t('pd.note')) + '</p></div>' +
+            '</div>' +
+            '<div class="button-row pd-actions">' +
+              orderButton(p) +
+              // ADD TO CART: when the online shop is added, put the "Add to cart" button here, e.g.
+              // '<button type="button" class="btn btn-primary" data-add-to-cart="' + p.id + '">Add to cart</button>'
+              // The product id, name, price and images all come from window.DREAMLAND_PRODUCTS (js/data.js).
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</section>';
+    }).join('');
+  }
+
+  function telHref(display) {
+    return 'tel:+27' + display.replace(/\D/g, '').replace(/^0/, '');
+  }
+
+  function renderStockists(el) {
+    var variant = el.getAttribute('data-variant');
+    el.innerHTML = STOCKISTS.map(function (s) {
+      var phones = s.phones.map(function (n) {
+        return '<a href="' + telHref(n) + '"><svg class="icon" aria-hidden="true"><use href="#i-phone"/></svg>' + esc(n) + '</a>';
+      });
+      if (variant === 'strip') {
+        return '<li class="strip-item"><strong>' + esc(s.name) + '</strong><span class="muted">' + esc(s.town) + '</span>' + phones[0] + '</li>';
+      }
+      return '<li class="stockist card"><h3>' + esc(s.name) + '</h3>' +
+        '<p class="stockist-town"><svg class="icon" aria-hidden="true"><use href="#i-pin"/></svg>' + esc(s.town) + '</p>' +
+        '<p class="stockist-phones">' + phones.join('') + '</p></li>';
+    }).join('');
+  }
+
+  function renderPillowOptions(select) {
+    var current = select.value;
+    select.innerHTML = '<option value="">' + esc(t('form.choose')) + '</option>' +
+      PRODUCTS.map(function (p) {
+        var label = (p.colour ? loc(p.name) + ' (' + loc(p.colour) + ')' : loc(p.name)) + ' – ' + rand(p.price);
+        return '<option value="' + p.id + '">' + esc(label) + '</option>';
+      }).join('') +
+      '<option value="mixed">' + esc(t('opt.mixed')) + '</option>';
+    select.value = current;
+  }
+
+  function renderAll() {
+    document.querySelectorAll('[data-render]').forEach(function (el) {
+      var type = el.getAttribute('data-render');
+      if (type === 'product-cards') renderProductCards(el);
+      else if (type === 'product-details') renderProductDetails(el);
+      else if (type === 'stockists') renderStockists(el);
+      else if (type === 'pillow-options') renderPillowOptions(el);
+    });
+  }
+
+  /* ------------------------------------------------------------------
+     Language switching
+     ------------------------------------------------------------------ */
   function applyLanguage(next) {
     lang = I18N[next] ? next : 'en';
     document.documentElement.lang = HTML_LANG[lang];
-    document.title = t('meta.title');
-
-    document.querySelectorAll('[data-i18n]').forEach(function (el) {
-      el.textContent = t(el.getAttribute('data-i18n'));
-    });
-    document.querySelectorAll('[data-i18n-alt]').forEach(function (el) {
-      el.alt = t(el.getAttribute('data-i18n-alt'));
-    });
-    document.querySelectorAll('[data-i18n-aria]').forEach(function (el) {
-      el.setAttribute('aria-label', t(el.getAttribute('data-i18n-aria')));
-    });
+    renderAll();
+    translateStatic();
+    updateWhatsAppLinks();
     document.querySelectorAll('.lang-toggle [data-lang]').forEach(function (b) {
       b.setAttribute('aria-pressed', String(b.getAttribute('data-lang') === lang));
     });
-
-    updateWhatsAppLinks();
     if (lastQuizResult) showQuizResult(lastQuizResult, false);
+    document.querySelectorAll('.callback-form').forEach(refreshCallbackMessages);
   }
 
   function readSavedLang() {
@@ -442,9 +255,6 @@
     try { localStorage.setItem(LANG_KEY, value); } catch (e) { /* storage unavailable */ }
   }
 
-  /* ------------------------------------------------------------------
-     Language toggle
-     ------------------------------------------------------------------ */
   document.querySelectorAll('.lang-toggle [data-lang]').forEach(function (btn) {
     btn.addEventListener('click', function () {
       var value = btn.getAttribute('data-lang');
@@ -480,109 +290,232 @@
      Find your pillow quiz (general comfort guidance only)
      ------------------------------------------------------------------ */
   var quizForm = document.getElementById('quiz-form');
-  var quizResult = document.getElementById('quiz-result');
   var lastQuizResult = null;
 
   function showQuizResult(id, focus) {
-    var p = PRODUCTS[id];
+    var p = findProduct(id);
+    var result = document.getElementById('quiz-result');
     lastQuizResult = id;
-    document.getElementById('quiz-dot').className = 'dot ' + p.dot;
-    document.getElementById('quiz-result-name').textContent =
-      t('name.' + id) + ' (' + t('colour.' + p.colour) + ') – ' + p.price;
+    document.getElementById('quiz-dot').style.background = 'var(' + p.accent + ')';
+    document.getElementById('quiz-result-name').textContent = loc(p.name) + ' (' + loc(p.colour) + ') – ' + rand(p.price);
     document.getElementById('quiz-result-why').textContent = t('quiz.why.' + id);
-    document.getElementById('quiz-order').href = waUrl(productMessage(id));
-    quizResult.style.setProperty('--result', 'var(' + p.accent + ')');
-    quizResult.hidden = false;
-    if (focus) quizResult.focus();
+    document.getElementById('quiz-order').href = waUrl(productMessage(p));
+    document.getElementById('quiz-view').href = '#' + id;
+    result.style.setProperty('--result', 'var(' + p.accent + ')');
+    result.hidden = false;
+    if (focus) result.focus();
   }
 
-  quizForm.addEventListener('submit', function (e) {
-    e.preventDefault();
-    var data = new FormData(quizForm);
-    var position = data.get('position');
-    var feel = data.get('feel');
-    var count = data.get('count');
-    var error = document.getElementById('quiz-error');
+  if (quizForm) {
+    quizForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var data = new FormData(quizForm);
+      var position = data.get('position');
+      var feel = data.get('feel');
+      var count = data.get('count');
+      var error = document.getElementById('quiz-error');
 
-    if (!position || !feel || !count) {
-      error.hidden = false;
-      return;
-    }
-    error.hidden = true;
+      if (!position || !feel || !count) {
+        error.hidden = false;
+        return;
+      }
+      error.hidden = true;
 
-    var score = { stomach: 0, back: 1, side: 2 }[position];
-    score += { softer: -1, unsure: 0, firmer: 1 }[feel];
-    if (count === 'two') score -= 1;
-    score = Math.max(0, Math.min(3, score));
+      var score = { stomach: 1, back: 2, side: 3 }[position];
+      score += { softer: -1, unsure: 0, firmer: 1 }[feel];
+      if (count === 'two') score -= 1;
+      score = Math.max(1, Math.min(4, score));
 
-    showQuizResult(QUIZ_ORDER[score], true);
-  });
+      var match = PRODUCTS.filter(function (p) { return p.firmness === score; })[0];
+      showQuizResult(match.id, true);
+    });
+  }
 
   /* ------------------------------------------------------------------
-     Order / enquiry form -> WhatsApp
+     WhatsApp order form (Contact page)
      ------------------------------------------------------------------ */
   var orderForm = document.getElementById('order-form');
 
-  orderForm.addEventListener('submit', function (e) {
-    e.preventDefault();
-    var data = new FormData(orderForm);
-    var name = String(data.get('name') || '').trim();
-    var pillow = data.get('pillow');
-    var qty = Math.max(1, parseInt(data.get('qty'), 10) || 1);
-    var error = document.getElementById('form-error');
-    var nameInput = document.getElementById('f-name');
-    var pillowInput = document.getElementById('f-pillow');
+  if (orderForm) {
+    orderForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var data = new FormData(orderForm);
+      var name = String(data.get('name') || '').trim();
+      var pillow = data.get('pillow');
+      var qty = Math.max(1, parseInt(data.get('qty'), 10) || 1);
+      var error = document.getElementById('form-error');
+      var nameInput = document.getElementById('f-name');
+      var pillowInput = document.getElementById('f-pillow');
 
-    nameInput.setAttribute('aria-invalid', String(!name));
-    pillowInput.setAttribute('aria-invalid', String(!pillow));
-    if (!name || !pillow) {
-      error.hidden = false;
-      (!name ? nameInput : pillowInput).focus();
+      nameInput.setAttribute('aria-invalid', String(!name));
+      pillowInput.setAttribute('aria-invalid', String(!pillow));
+      if (!name || !pillow) {
+        error.hidden = false;
+        (!name ? nameInput : pillowInput).focus();
+        return;
+      }
+      error.hidden = true;
+
+      var selected = pillowInput.options[pillowInput.selectedIndex].text;
+      var lines = [
+        t('wa.form.intro'),
+        '• ' + t('wa.form.pillow') + ': ' + selected,
+        '• ' + t('wa.form.qty') + ': ' + qty,
+        '',
+        t('wa.form.name') + ': ' + name
+      ];
+      var phone = String(data.get('phone') || '').trim();
+      var town = String(data.get('town') || '').trim();
+      var message = String(data.get('message') || '').trim();
+      if (phone) lines.push(t('wa.form.phone') + ': ' + phone);
+      if (town) lines.push(t('wa.form.town') + ': ' + town);
+      if (message) lines.push(t('wa.form.msg') + ': ' + message);
+
+      window.open(waUrl(lines.join('\n'), data.get('to') || WA_DEFAULT), '_blank', 'noopener');
+    });
+  }
+
+  /* ------------------------------------------------------------------
+     Request a Call Back form -> Web3Forms
+     ------------------------------------------------------------------ */
+  var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+  // Accepts 0XX XXX XXXX and +27 XX XXX XXXX (spaces, dashes and brackets ignored)
+  function isSouthAfricanPhone(value) {
+    var n = value.replace(/[\s\-().]/g, '');
+    return /^0[1-9]\d{8}$/.test(n) || /^\+27[1-9]\d{8}$/.test(n);
+  }
+
+  var CB_RULES = {
+    first_name: { msg: 'cb.err.first', ok: function (v) { return v.length > 0; } },
+    last_name: { msg: 'cb.err.last', ok: function (v) { return v.length > 0; } },
+    email: { msg: 'cb.err.email', ok: function (v) { return EMAIL_RE.test(v); } },
+    phone: { msg: 'cb.err.phone', ok: isSouthAfricanPhone }
+  };
+
+  function validateField(input) {
+    var rule = CB_RULES[input.name];
+    if (!rule) return true;
+    var ok = rule.ok(input.value.trim());
+    var err = document.getElementById(input.getAttribute('aria-describedby'));
+    input.setAttribute('aria-invalid', String(!ok));
+    err.textContent = ok ? '' : t(rule.msg);
+    err.hidden = ok;
+    return ok;
+  }
+
+  function setStatus(form, state) {
+    var box = form.querySelector('.form-status');
+    form.setAttribute('data-status', state || '');
+    box.className = 'form-status' + (state ? ' is-' + state : '');
+    if (!state || state === 'sending') {
+      box.hidden = !state;
+      box.textContent = state ? t('cb.sending') : '';
       return;
     }
-    error.hidden = true;
+    box.hidden = false;
+    if (state === 'success') {
+      box.textContent = t('cb.success');
+    } else {
+      box.innerHTML = esc(t('cb.error')) + ' <a href="' + esc(waUrl(t('wa.callback'))) + '" target="_blank" rel="noopener">' +
+        '<svg class="icon" aria-hidden="true"><use href="#i-whatsapp"/></svg>' + esc(t('cb.errorLink')) + '</a>';
+    }
+  }
 
-    var lines = [
-      t('wa.form.intro'),
-      '• ' + t('wa.form.pillow') + ': ' + t('opt.' + pillow),
-      '• ' + t('wa.form.qty') + ': ' + qty,
-      '',
-      t('wa.form.name') + ': ' + name
-    ];
-    var phone = String(data.get('phone') || '').trim();
-    var town = String(data.get('town') || '').trim();
-    var message = String(data.get('message') || '').trim();
-    if (phone) lines.push(t('wa.form.phone') + ': ' + phone);
-    if (town) lines.push(t('wa.form.town') + ': ' + town);
-    if (message) lines.push(t('wa.form.msg') + ': ' + message);
+  function refreshCallbackMessages(form) {
+    form.querySelectorAll('[aria-invalid="true"]').forEach(validateField);
+    var state = form.getAttribute('data-status');
+    if (state) setStatus(form, state);
+  }
 
-    var to = data.get('to') || WA_DEFAULT;
-    window.open(waUrl(lines.join('\n'), to), '_blank', 'noopener');
+  document.querySelectorAll('.callback-form').forEach(function (form) {
+    var inputs = Array.prototype.slice.call(form.querySelectorAll('input[name]')).filter(function (i) { return CB_RULES[i.name]; });
+    var button = form.querySelector('[type="submit"]');
+
+    inputs.forEach(function (input) {
+      input.addEventListener('blur', function () { if (input.value.trim()) validateField(input); });
+      input.addEventListener('input', function () { if (input.getAttribute('aria-invalid') === 'true') validateField(input); });
+    });
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var invalid = inputs.filter(function (input) { return !validateField(input); });
+      if (invalid.length) {
+        invalid[0].focus();
+        return;
+      }
+
+      // Honeypot ticked: almost certainly a bot. Pretend it worked, send nothing.
+      if (form.botcheck.checked) {
+        form.reset();
+        setStatus(form, 'success');
+        return;
+      }
+
+      if (!WEB3FORMS_ACCESS_KEY || WEB3FORMS_ACCESS_KEY === 'PASTE_KEY_HERE') {
+        console.warn('Dreamland: add your Web3Forms key to WEB3FORMS_ACCESS_KEY in js/main.js');
+        setStatus(form, 'error');
+        return;
+      }
+
+      var v = function (name) { return form.elements[name].value.trim(); };
+      var payload = {
+        access_key: WEB3FORMS_ACCESS_KEY,
+        subject: I18N.en['cb.subject'], // always English so inbox filters keep working
+        from_name: 'Dreamland Co. website',
+        name: v('first_name') + ' ' + v('last_name'),
+        first_name: v('first_name'),
+        last_name: v('last_name'),
+        email: v('email'),
+        phone: v('phone'),
+        language: lang === 'af' ? 'Afrikaans' : 'English',
+        page: document.title,
+        botcheck: false
+      };
+
+      button.disabled = true;
+      setStatus(form, 'sending');
+
+      fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+        .then(function (res) { return res.json(); })
+        .then(function (json) {
+          if (!json.success) throw new Error(json.message || 'Web3Forms error');
+          form.reset();
+          setStatus(form, 'success');
+        })
+        .catch(function () { setStatus(form, 'error'); })
+        .then(function () { button.disabled = false; });
+    });
   });
 
   /* ------------------------------------------------------------------
-     Gallery lightbox
+     Gallery lightbox (About page)
      ------------------------------------------------------------------ */
   var lightbox = document.getElementById('lightbox');
-  var lbImg = document.getElementById('lightbox-img');
-  var lbSource = document.getElementById('lightbox-source');
-  var lbCaption = document.getElementById('lightbox-caption');
   var galleryItems = Array.prototype.slice.call(document.querySelectorAll('.gallery-item'));
-  var current = 0;
-  var lastTrigger = null;
-
-  function showSlide(index) {
-    current = (index + galleryItems.length) % galleryItems.length;
-    var item = galleryItems[current];
-    var base = 'images/' + item.getAttribute('data-full') + '-1600';
-    var alt = item.querySelector('img').alt;
-    lbSource.srcset = base + '.webp';
-    lbImg.src = base + '.jpg';
-    lbImg.alt = alt;
-    lbCaption.textContent = alt;
-  }
 
   if (lightbox && typeof lightbox.showModal === 'function') {
+    var lbImg = document.getElementById('lightbox-img');
+    var lbSource = document.getElementById('lightbox-source');
+    var lbCaption = document.getElementById('lightbox-caption');
+    var current = 0;
+    var lastTrigger = null;
+
+    var showSlide = function (index) {
+      current = (index + galleryItems.length) % galleryItems.length;
+      var item = galleryItems[current];
+      var base = 'images/' + item.getAttribute('data-full') + '-1600';
+      var alt = item.querySelector('img').alt;
+      lbSource.srcset = base + '.webp';
+      lbImg.src = base + '.jpg';
+      lbImg.alt = alt;
+      lbCaption.textContent = alt;
+    };
+
     galleryItems.forEach(function (item, i) {
       item.addEventListener('click', function () {
         lastTrigger = item;
@@ -614,8 +547,12 @@
   /* ------------------------------------------------------------------
      Fade-in on scroll (CSS skips it for prefers-reduced-motion)
      ------------------------------------------------------------------ */
-  var reveals = document.querySelectorAll('.reveal');
-  if ('IntersectionObserver' in window) {
+  function setupReveal() {
+    var reveals = document.querySelectorAll('.reveal');
+    if (!('IntersectionObserver' in window)) {
+      reveals.forEach(function (el) { el.classList.add('is-visible'); });
+      return;
+    }
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
         if (entry.isIntersecting) {
@@ -623,15 +560,25 @@
           io.unobserve(entry.target);
         }
       });
-    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.05 });
     reveals.forEach(function (el) { io.observe(el); });
-  } else {
-    reveals.forEach(function (el) { el.classList.add('is-visible'); });
   }
 
   /* ------------------------------------------------------------------
-     Footer year + initial language
+     Start-up
      ------------------------------------------------------------------ */
-  document.getElementById('year').textContent = new Date().getFullYear();
+  var yearEl = document.getElementById('year');
+  if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+  captureOriginals(document);
   applyLanguage(readSavedLang() || 'en');
+  setupReveal();
+
+  // Product sections are built by script, so re-apply any #hash jump once they exist
+  if (location.hash && document.querySelector('[data-render="product-details"]')) {
+    var target = document.getElementById(location.hash.slice(1));
+    var jump = function () { if (target) target.scrollIntoView({ behavior: 'instant' }); };
+    jump();
+    window.addEventListener('load', jump);
+  }
 })();
