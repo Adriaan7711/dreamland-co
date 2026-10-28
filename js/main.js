@@ -8,7 +8,7 @@
      ------------------------------------------------------------------ */
 
   // ▼▼▼ PASTE YOUR WEB3FORMS ACCESS KEY HERE (free at https://web3forms.com) ▼▼▼
-  var WEB3FORMS_ACCESS_KEY = "PASTE_KEY_HERE";
+  var WEB3FORMS_ACCESS_KEY = "8c0a6f4e-7d6d-4d07-9627-89f7b1b41ed8";
   // ▲▲▲ Call-back requests are emailed to the address you register the key with. ▲▲▲
 
   var WA_DEFAULT = '27823358384'; // Gousia
