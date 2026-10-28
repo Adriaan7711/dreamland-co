@@ -264,29 +264,6 @@
   });
 
   /* ------------------------------------------------------------------
-     Mobile navigation
-     ------------------------------------------------------------------ */
-  var navToggle = document.querySelector('.nav-toggle');
-  var nav = document.getElementById('site-nav');
-
-  function setNav(open) {
-    navToggle.setAttribute('aria-expanded', String(open));
-    nav.classList.toggle('is-open', open);
-  }
-  navToggle.addEventListener('click', function () {
-    setNav(navToggle.getAttribute('aria-expanded') !== 'true');
-  });
-  nav.addEventListener('click', function (e) {
-    if (e.target.closest('a')) setNav(false);
-  });
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && nav.classList.contains('is-open')) {
-      setNav(false);
-      navToggle.focus();
-    }
-  });
-
-  /* ------------------------------------------------------------------
      Find your pillow quiz (general comfort guidance only)
      ------------------------------------------------------------------ */
   var quizForm = document.getElementById('quiz-form');
