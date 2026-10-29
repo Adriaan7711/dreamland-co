@@ -78,7 +78,7 @@ Give the caller their email and password privately, for example in person or by 
 ## Step 6: Publish and log in
 
 1. Push the changes to GitHub. Your site will update within a minute or two.
-2. Open **https://adriaan7711.github.io/dreamland-co/leads/** (or `yourdomain.co.za/leads/` once your own domain is connected).
+2. Open **https://www.dreamlandco.site/leads/** (or `www.dreamlandco.site/leads/` once your own domain is connected).
 3. Log in with one of the users from Step 4.
 4. Click **Import** to upload your scraped list.
 
@@ -119,7 +119,7 @@ The visitor sees "Thank you" if either of those two worked. If both fail, they'r
 
 ## The caller's email signature
 
-Open **https://adriaan7711.github.io/dreamland-co/leads/signature.html** on a laptop. There's also a **Signature** link at the top of the lead tracker.
+Open **https://www.dreamlandco.site/leads/signature.html** on a laptop. There's also a **Signature** link at the top of the lead tracker.
 
 1. Fill in the caller's name, job title, phone, email address and website.
 2. Click **Copy signature**.

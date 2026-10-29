@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /leads/
 
-Sitemap: https://adriaan7711.github.io/dreamland-co/sitemap.xml
+Sitemap: https://www.dreamlandco.site/sitemap.xml

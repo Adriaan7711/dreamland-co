@@ -18,7 +18,7 @@ Static site for **Dreamland – The Colour Coded Pillow**. Plain HTML, CSS and J
 
 1. **Call-back form:** the Web3Forms access key is set in `WEB3FORMS_ACCESS_KEY` at the top of `js/main.js`. Requests go to the email address the key was registered with.
 2. **About page:** search `about.html` for `EDIT: confirm with owners` and replace the invented details. Update the matching Afrikaans text (`about.p1`–`about.p4`) in `js/i18n.js`.
-3. **Site address:** if it isn't `https://adriaan7711.github.io/dreamland-co/`, find-and-replace that address in every `.html` file, `sitemap.xml` and `robots.txt`.
+3. **Site address:** if it isn't `https://www.dreamlandco.site/`, find-and-replace that address in every `.html` file, `sitemap.xml` and `robots.txt`.
 
 ## Common edits
 

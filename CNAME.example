@@ -1,7 +1,0 @@
-# CUSTOM DOMAIN PLACEHOLDER
-# To use your own domain (e.g. www.dreamlandco.co.za):
-#   1. Rename this file to CNAME (no extension).
-#   2. Replace ALL of its contents with just your domain on one line, e.g.:
-#        www.dreamlandco.co.za
-#   3. Update the site address in index.html, sitemap.xml and robots.txt to match.
-# (GitHub Pages reads only the first line of CNAME, so no comments in the real file.)
