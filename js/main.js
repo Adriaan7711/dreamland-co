@@ -11,7 +11,7 @@
   var WEB3FORMS_ACCESS_KEY = "8c0a6f4e-7d6d-4d07-9627-89f7b1b41ed8";
   // ▲▲▲ Call-back requests are emailed to the address you register the key with. ▲▲▲
 
-  var WA_DEFAULT = '27823358384'; // Gousia
+  var WA_DEFAULT = '27725486329'; // James Prinsloo: all general and order WhatsApp links go here
   var PRODUCTS = window.DREAMLAND_PRODUCTS || [];
   var STOCKISTS = window.DREAMLAND_STOCKISTS || [];
   var I18N = window.DREAMLAND_I18N || { en: {}, af: {} };
@@ -353,7 +353,7 @@
       if (town) lines.push(t('wa.form.town') + ': ' + town);
       if (message) lines.push(t('wa.form.msg') + ': ' + message);
 
-      window.open(waUrl(lines.join('\n'), data.get('to') || WA_DEFAULT), '_blank', 'noopener');
+      window.open(waUrl(lines.join('\n'), WA_DEFAULT), '_blank', 'noopener'); // orders go to James
     });
   }
 

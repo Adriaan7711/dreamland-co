@@ -272,7 +272,6 @@ window.DREAMLAND_I18N = {
     'form.qty': 'Hoeveelheid',
     'form.town': 'Dorp',
     'form.msg': 'Boodskap (opsioneel)',
-    'form.to': 'Stuur na',
     'form.error': "Vul asseblief jou naam in en kies 'n kussing.",
     'form.send': 'Stuur op WhatsApp',
     'opt.mixed': "'n Mengsel / nog nie seker nie",

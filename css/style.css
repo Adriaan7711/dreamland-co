@@ -748,7 +748,8 @@ textarea:focus-visible { outline: 3px solid var(--copper); outline-offset: 1px; 
 .site-footer a { color: var(--white); }
 .site-footer a:hover { color: #E2B489; }
 .footer-inner { display: grid; gap: 32px; }
-@media (min-width: 800px) { .footer-inner { grid-template-columns: 1.5fr 1fr 1fr; } .site-footer { padding-bottom: 40px; } }
+@media (min-width: 800px) { .footer-inner { grid-template-columns: 1.5fr 1fr 1fr; } }
+@media (min-width: 1024px) { .site-footer { padding-bottom: 40px; } } /* floating WhatsApp button is hidden from here */
 .footer-tagline { font-family: var(--font-serif); font-size: 1.15rem; color: var(--white); margin: 8px 0; }
 .footer-head { font-family: var(--font-sans); font-size: .8rem; letter-spacing: .14em; text-transform: uppercase; color: #E2B489; margin-bottom: 12px; }
 .footer-links { display: grid; gap: 6px; }
@@ -758,10 +759,11 @@ textarea:focus-visible { outline: 3px solid var(--copper); outline-offset: 1px; 
 
 /* ---------- Floating WhatsApp ---------- */
 
+/* Phones and tablets only. If a cookie/consent bar is ever added, set --wa-float-lift to its height. */
 .wa-float {
   position: fixed;
-  right: 16px;
-  bottom: 16px;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: calc(max(16px, env(safe-area-inset-bottom)) + var(--wa-float-lift, 0px));
   z-index: 60;
   width: 60px; height: 60px;
   display: grid;
