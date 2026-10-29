@@ -78,15 +78,44 @@ Give the caller their email and password privately, for example in person or by 
 ## Step 6: Publish and log in
 
 1. Push the changes to GitHub. Your site will update within a minute or two.
-2. Open **https://www.dreamlandco.site/leads/** (or `www.dreamlandco.site/leads/` once your own domain is connected).
+2. Open **https://www.dreamlandco.site/leads/**.
 3. Log in with one of the users from Step 4.
 4. Click **Import** to upload your scraped list.
 
-**Tip for the caller's phone:** open the link in Chrome (Android) or Safari (iPhone) and choose **Add to Home screen**. The app then opens like a normal app. The caller stays logged in until they tap **Log out**.
+**Tip for the caller's phone:** install the tracker as an app (see [Installing the app on a phone](#installing-the-app-on-a-phone)). The caller stays logged in until they tap **Log out**.
+
+---
+
+## Database update for customers, orders and deleting (October 2026)
+
+The newest features need a few additions to your database: the Customers tab, recording orders, the "Update existing leads" import, and the address and Google Maps link fields. Do this once, before using them:
+
+1. Log in to **https://supabase.com** and open your project.
+2. In the left sidebar, click **SQL Editor**, then **New query** (or the **+**).
+3. Open `leads/supabase-setup.sql` from this folder, copy **everything** in it, and paste it into the editor.
+4. Click **Run**. You should see **"Success. No rows returned."**
+
+This is safe to run more than once. It **doesn't delete or change any of your leads**. It only adds what's missing:
+
+- a **customers** table and an **orders** table, locked the same way as your leads, so only logged-in users can see or change them
+- the **Customer** status
+- the Address and Google Maps link fields on leads
+- a helper that the "Update existing leads" import uses
+
+The website enquiry form still can only **add** a warm lead. It can't see or touch customers or orders.
+
+If you skip this step, the Customers tab and the import tell you to run it.
 
 ---
 
 ## Importing your scraped list
+
+When you click **Import**, first choose what you want to do:
+
+- **Add new leads** puts new businesses into your list. This is described below.
+- **Update existing leads** fills in or corrects details of leads you already have. See [Updating existing leads from a file](#updating-existing-leads-from-a-file).
+
+### Adding new leads
 
 - Use an **Excel file** (.xlsx) or a **CSV** file. The first row must hold the column names. If the Excel file has several sheets, the app picks the one with the most rows, and you can switch to another sheet.
 - After you choose the file, the app guesses which column is which. Check each one, and set any it missed. Only **Business name** is required.
@@ -100,9 +129,90 @@ Give the caller their email and password privately, for example in person or by 
 - Province abbreviations such as `KZN`, `WC` and `GP` are expanded to the full province name automatically.
 - You can safely import the same file again later. Anything already imported is skipped.
 
-### One-off database update (October 2026)
+### Updating existing leads from a file
 
-The Address and Google Maps link fields were added after you first set up Supabase. Before your first Excel import, open **SQL Editor** in Supabase, paste the whole of `leads/supabase-setup.sql` again, and click **Run**. It's safe to repeat, and it doesn't touch existing leads. If you skip this step, the import stops with a message telling you to do it.
+Use this to add details to leads you already have. For example, run your spreadsheet again to give every lead its address and Google Maps link.
+
+1. Click **Import**, choose **Update existing leads**, and pick your Excel or CSV file.
+2. Check the column matches, the same as for adding leads. You need at least one of **Business name**, **Email** or **Phone**.
+3. Click **Preview changes**. Nothing is saved yet.
+
+**How rows are matched to leads.** Each row is matched in this order:
+
+1. By **business name**. Capitals and extra spaces don't matter.
+2. By **email**, if the name doesn't find the lead.
+3. By **phone number**, where `082 123 4567` and `+27 82 123 4567` count as the same.
+
+If a name fits several leads, the email and then the phone are used to pick the right one.
+
+**What changes, and what never does:**
+
+- Only cells that have something in them are used. **An empty cell never wipes** what a lead already has.
+- A filled-in cell fills in a blank, or replaces what's there if it's different.
+- **Status, notes and call history are never changed.**
+
+**The preview shows:**
+
+- how many leads will be updated, and how many leads get each kind of change (for example, *Address: 14,746*)
+- rows with nothing new for their lead
+- rows for a lead that an earlier row already changes. These are skipped, so the first row in the file wins. This stops hotel branches that share one phone number from overwriting each other.
+- rows that **matched more than one lead**. These are skipped and listed, so you can sort them out by hand.
+- rows that **matched no lead**. You can choose to **skip them** or **add them as new leads**. Duplicates and rows without a name still aren't added.
+
+4. Click the **Update … leads** button to save. With 15,000 leads it can take a minute or two. Keep the page open until it says it's done.
+
+## Deleting leads
+
+- **One lead:** tap **Delete** at the bottom of its card, then confirm.
+- **Several leads:** tap **Select** (above the list). Tick the leads you want, or tap **Select all** to tick every lead that matches your current search and filters. Then tap **Delete** in the bar at the bottom. You'll be told how many leads will go before anything is deleted.
+- Deleting removes the lead for everyone, with its notes and call history. It can't be undone.
+- If the lead is a customer, the customer record and its orders are kept.
+
+## Customers and orders
+
+The **Customers** tab lists everyone who has ordered. Each customer card shows their contact details, how many orders they've placed, the total they've spent, the dates of their first and latest orders, and their order history. Call, Email and Map buttons work the same as on leads.
+
+**To record an order from a lead:** tap **Record order** on the lead's card, then fill in:
+
+- **Order date.** It starts as today.
+- **Quantity** for each product you sold. Prices start at the website prices, and you can change them for bulk deals.
+- **Order total.** It's added up for you. Change it if you gave a discount or charged for delivery.
+- **Delivery address** and **order notes**, if you need them.
+
+When you save, the lead becomes a customer and its status changes to **Customer**, so it drops off the To call list. Its notes and call history stay on the lead.
+
+**To record another order:** use **Record order** on the customer's card in the Customers tab, or on the lead again. Both add to the same customer.
+
+**To add a customer by hand:** in the Customers tab, tap **Add customer**. Only the business name is required. Tick **Also record their first order** to enter the order at the same time. If the phone number or email already belongs to a lead or customer, you'll get a warning with three choices:
+
+- **Use this customer** adds the order to the existing customer.
+- **Link to this lead** turns that lead into the customer.
+- **Save as new customer** creates a separate record anyway.
+
+**Editing and deleting:** each customer card has **Edit** and **Delete** buttons, and each order has **Delete order**.
+
+Search, province and town filters work on customers too. The sort box lets you show the latest order first, the most spent, the most orders, or names A–Z.
+
+## Installing the app on a phone
+
+The lead tracker can be installed so it opens from the home screen like a normal app, called **Dreamland Leads**, with its own moon icon and no browser bars.
+
+**Android (Chrome):**
+
+1. Open **https://www.dreamlandco.site/leads/** in Chrome.
+2. Tap **Install app** in the bar at the top of the tracker. If you don't see it, tap the **⋮** menu and choose **Install app** or **Add to Home screen**.
+
+**iPhone (Safari):**
+
+1. Open **https://www.dreamlandco.site/leads/** in Safari.
+2. Tap the **Share** button (the square with an arrow pointing up).
+3. Scroll down and tap **Add to Home Screen**, then **Add**.
+
+**On a computer (Chrome or Edge):** click **Install app** in the bar at the top, or the install icon at the right of the address bar.
+
+**Updates:** when a change is pushed to GitHub, the app picks it up the next time it's opened. If something looks out of date, close the app completely and open it again.
+
+The app keeps its own screens and buttons on the phone so it opens quickly. Your leads, customers and logins always come live from Supabase and are never stored by the app.
 
 ## The website enquiry form
 
@@ -139,3 +249,5 @@ The logo is the file `images/email-logo.png` on your website. Keep that file, or
 | "Email not confirmed" | In **Authentication → Users**, open the user and confirm them, or delete and re-add them with **Auto Confirm User** ticked. |
 | Website enquiries arrive by email but not in the tracker | Check `leads/config.js` has your real values (Step 5), and that the SQL from Step 2 ran. Run it again if you're not sure. |
 | The page says the project is paused | Log in to supabase.com and click **Restore project**. |
+| "Your database needs a small update first" | Do the [database update](#database-update-for-customers-orders-and-deleting-october-2026). |
+| No **Install app** button on Android | The app may already be installed, or you hid the tip with the **×**. Use Chrome's **⋮** menu → **Install app** instead. |

@@ -7,16 +7,21 @@
   <meta name="theme-color" content="#1F4E79">
   <title>Leads – Dreamland Co.</title>
 
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Dreamland Leads">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <link rel="icon" href="../favicon.svg" type="image/svg+xml">
   <link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
-  <link rel="apple-touch-icon" href="../apple-touch-icon.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="../css/style.css">
-  <link rel="stylesheet" href="leads.css?v=2">
+  <link rel="stylesheet" href="leads.css?v=3">
 </head>
 <body class="leads-app">
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -28,6 +33,12 @@
     <symbol id="i-globe" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3Z"/></g></symbol>
     <symbol id="i-map" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.1-7-11.5a7 7 0 0 1 14 0C19 14.9 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.5"/></g></symbol>
     <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></g></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 7.5 12 3l8.5 4.5v9L12 21l-8.5-4.5z"/><path d="M3.5 7.5 12 12l8.5-4.5M12 12v9"/></g></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4Zm9-13 4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-share" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3m0 0L8 7m4-4 4 4"/><path d="M8 10H6a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1h-2"/></g></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></g></symbol>
   </svg>
 
   <header class="app-header">
@@ -45,6 +56,16 @@
   </header>
 
   <main>
+    <!-- Install the tracker as an app: a button where the browser allows it, a tip on iPhone -->
+    <div class="app-wrap" id="install-bar" hidden>
+      <div class="install-bar">
+        <svg class="btn-icon" aria-hidden="true"><use href="#i-download"/></svg>
+        <p class="install-text" id="install-text">Install the lead tracker as an app on this device.</p>
+        <button class="btn btn-primary btn-sm" type="button" id="install-btn" hidden>Install app</button>
+        <button class="icon-btn" type="button" id="install-close" aria-label="Hide this tip"><svg aria-hidden="true"><use href="#i-close"/></svg></button>
+      </div>
+    </div>
+
     <!-- Shown until config.js has the Supabase values -->
     <section class="app-wrap screen" id="setup-screen" hidden>
       <div class="panel">
@@ -84,21 +105,31 @@
         <button class="tab" type="button" data-view="all" aria-pressed="true">All leads <span class="tab-count" data-count="all"></span></button>
         <button class="tab" type="button" data-view="call" aria-pressed="false">To call <span class="tab-count" data-count="call"></span></button>
         <button class="tab" type="button" data-view="warm" aria-pressed="false">Warm leads <span class="tab-count" data-count="warm"></span></button>
+        <button class="tab" type="button" data-view="customers" aria-pressed="false">Customers <span class="tab-count" data-count="customers"></span></button>
       </nav>
 
       <div class="toolbar">
         <label class="search">
           <svg aria-hidden="true"><use href="#i-search"/></svg>
-          <input type="search" id="search" placeholder="Search leads…" aria-label="Search leads" autocomplete="off">
+          <input type="search" id="search" placeholder="Search leads…" aria-label="Search" autocomplete="off">
         </label>
         <button class="btn btn-outline btn-sm" type="button" id="import-btn">
           <svg class="btn-icon" aria-hidden="true"><use href="#i-upload"/></svg> Import
+        </button>
+        <button class="btn btn-primary btn-sm" type="button" id="add-customer-btn" hidden>
+          <svg class="btn-icon" aria-hidden="true"><use href="#i-plus"/></svg> Add customer
         </button>
       </div>
 
       <div class="filters">
         <select id="filter-status" aria-label="Filter by status">
           <option value="">All statuses</option>
+        </select>
+        <select id="customer-sort" aria-label="Sort customers" hidden>
+          <option value="latest">Latest order first</option>
+          <option value="spent">Most spent first</option>
+          <option value="orders">Most orders first</option>
+          <option value="name">Name A–Z</option>
         </select>
         <select id="filter-province" aria-label="Filter by province">
           <option value="">All provinces</option>
@@ -110,13 +141,28 @@
 
       <div class="list-head">
         <p class="list-count" id="list-count" aria-live="polite"></p>
-        <button class="link-btn" type="button" id="clear-filters" hidden>Clear filters</button>
+        <div class="list-head-actions">
+          <button class="link-btn" type="button" id="clear-filters" hidden>Clear filters</button>
+          <button class="link-btn" type="button" id="select-toggle">Select</button>
+        </div>
       </div>
       <p class="view-hint" id="view-hint"></p>
       <div class="lead-list" id="lead-list"></div>
       <button class="btn btn-outline btn-block show-more" type="button" id="show-more" hidden>Show more</button>
       <div class="empty" id="empty" hidden></div>
     </section>
+
+    <!-- Shown while selecting leads to delete -->
+    <div class="select-bar" id="select-bar" hidden>
+      <div class="app-wrap select-bar-inner">
+        <p class="select-count" id="select-count" aria-live="polite">0 selected</p>
+        <button class="link-btn" type="button" id="select-all">Select all</button>
+        <button class="link-btn" type="button" id="select-none">Clear</button>
+        <button class="btn btn-danger btn-sm" type="button" id="select-delete" disabled>
+          <svg class="btn-icon" aria-hidden="true"><use href="#i-trash"/></svg> Delete
+        </button>
+      </div>
+    </div>
 
     <p class="app-wrap loading" id="loading">Loading…</p>
   </main>
@@ -131,6 +177,19 @@
     <div class="sheet-body">
       <!-- Step 1: pick a file -->
       <div id="import-step-file">
+        <fieldset class="options">
+          <legend>What do you want to do?</legend>
+          <label class="option">
+            <input type="radio" name="import-mode" value="add" checked>
+            <span><strong>Add new leads</strong>
+              <small>Rows already in your list (same phone, email or Google Maps place) are skipped.</small></span>
+          </label>
+          <label class="option">
+            <input type="radio" name="import-mode" value="update">
+            <span><strong>Update existing leads</strong>
+              <small>Fill in or correct details of leads you already have. Empty cells never wipe anything, and status, notes and call history are never changed.</small></span>
+          </label>
+        </fieldset>
         <p>Choose your list as an Excel (.xlsx) or CSV file. The first row must hold the column names.</p>
         <label class="file-drop">
           <input type="file" id="csv-file" accept=".csv,.xlsx,.xls,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel">
@@ -147,9 +206,10 @@
           <select id="sheet-select"></select>
         </label>
         <p>Match each lead field to a column in your file. We've guessed where we could, so please check them. The example comes from the first row.</p>
+        <p class="note-box" id="update-map-hint" hidden>Each row is matched to a lead by business name first, then email, then phone number, so map at least one of those. The Notes column is only used for rows you choose to add as new leads.</p>
         <div class="map-list" id="map-list"></div>
 
-        <label class="field">
+        <label class="field" id="default-type-field">
           <span>Type for rows where it's blank or unclear</span>
           <select id="default-type">
             <option value="">Leave blank</option>
@@ -164,6 +224,27 @@
       <!-- Step 3: summary -->
       <div id="import-step-summary" hidden>
         <ul class="summary-list" id="summary-list"></ul>
+        <div id="update-preview" hidden>
+          <h3 class="sub-head">What will change</h3>
+          <ul class="summary-list" id="field-changes"></ul>
+          <fieldset class="options" id="unmatched-choice">
+            <legend id="unmatched-legend">Rows that matched no lead</legend>
+            <label class="option">
+              <input type="radio" name="unmatched" value="skip" checked>
+              <span><strong>Skip them</strong></span>
+            </label>
+            <label class="option">
+              <input type="radio" name="unmatched" value="add">
+              <span><strong id="unmatched-add-label">Add them as new leads</strong>
+                <small>Rows with the same phone, email or Google Maps place as another row are still only added once.</small></span>
+            </label>
+          </fieldset>
+          <details class="ambiguous" id="ambiguous" hidden>
+            <summary id="ambiguous-summary">Rows that matched more than one lead</summary>
+            <p class="muted">These rows are skipped. Fix them by hand, or make the name, email or phone in the file more specific.</p>
+            <ul id="ambiguous-list"></ul>
+          </details>
+        </div>
         <div class="progress" id="import-progress" hidden><span id="import-progress-bar"></span></div>
         <p class="form-error" id="import-error" role="alert" hidden></p>
       </div>
@@ -177,11 +258,88 @@
     </div>
   </dialog>
 
+  <!-- Record an order (for a lead or a customer) -->
+  <dialog class="sheet" id="order-dialog" aria-labelledby="order-title">
+    <form class="sheet-form" id="order-form" novalidate>
+      <div class="sheet-head">
+        <div>
+          <h2 id="order-title">Record order</h2>
+          <p class="sheet-sub" id="order-for"></p>
+        </div>
+        <button class="icon-btn" type="button" data-close aria-label="Close"><svg aria-hidden="true"><use href="#i-close"/></svg></button>
+      </div>
+      <div class="sheet-body" data-order-fields></div>
+      <div class="sheet-foot">
+        <button class="btn btn-outline btn-sm" type="button" data-close>Cancel</button>
+        <button class="btn btn-primary btn-sm" type="submit" id="order-save">Save order</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Add or edit a customer -->
+  <dialog class="sheet" id="customer-dialog" aria-labelledby="customer-title">
+    <form class="sheet-form" id="customer-form" novalidate>
+      <div class="sheet-head">
+        <h2 id="customer-title">Add customer</h2>
+        <button class="icon-btn" type="button" data-close aria-label="Close"><svg aria-hidden="true"><use href="#i-close"/></svg></button>
+      </div>
+      <div class="sheet-body">
+        <div class="dup-warning" id="dup-warning" hidden role="alert"></div>
+        <label class="field"><span>Business name <span class="req">(required)</span></span>
+          <input type="text" name="business_name" required maxlength="150" autocomplete="organization"></label>
+        <label class="field"><span>Contact person</span>
+          <input type="text" name="contact_person" maxlength="150" autocomplete="name"></label>
+        <div class="field-pair">
+          <label class="field"><span>Phone</span>
+            <input type="tel" name="phone" maxlength="60" autocomplete="tel"></label>
+          <label class="field"><span>Email</span>
+            <input type="email" name="email" maxlength="200" autocomplete="email"></label>
+        </div>
+        <div class="field-pair">
+          <label class="field"><span>Town</span>
+            <input type="text" name="town" maxlength="100"></label>
+          <label class="field"><span>Province</span>
+            <select name="province">
+              <option value="">—</option>
+              <option>Eastern Cape</option><option>Free State</option><option>Gauteng</option>
+              <option>KwaZulu-Natal</option><option>Limpopo</option><option>Mpumalanga</option>
+              <option>North West</option><option>Northern Cape</option><option>Western Cape</option>
+            </select></label>
+        </div>
+        <label class="field"><span>Address</span>
+          <textarea name="address" rows="2"></textarea></label>
+        <label class="field"><span>Notes</span>
+          <textarea name="notes" rows="2"></textarea></label>
+        <label class="check-row" id="first-order-toggle">
+          <input type="checkbox" name="with_order"> <span>Also record their first order</span>
+        </label>
+        <div id="first-order" data-order-fields hidden></div>
+      </div>
+      <div class="sheet-foot">
+        <button class="btn btn-outline btn-sm" type="button" data-close>Cancel</button>
+        <button class="btn btn-primary btn-sm" type="submit" id="customer-save">Save customer</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- "Are you sure?" -->
+  <dialog class="confirm" id="confirm-dialog" aria-labelledby="confirm-title">
+    <form method="dialog">
+      <h2 id="confirm-title">Are you sure?</h2>
+      <p id="confirm-text"></p>
+      <div class="confirm-foot">
+        <button class="btn btn-outline btn-sm" value="cancel" id="confirm-cancel">Cancel</button>
+        <button class="btn btn-danger btn-sm" value="ok" id="confirm-ok">Delete</button>
+      </div>
+    </form>
+  </dialog>
+
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-  <script src="config.js?v=2"></script>
-  <script src="app.js?v=2"></script>
+  <script src="../js/data.js?v=3"></script>
+  <script src="config.js?v=3"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>
