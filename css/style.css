@@ -693,6 +693,7 @@ ul, ol { padding: 0; margin: 0; list-style: none; }
 .tick-list { margin: 0 0 28px; display: grid; gap: 10px; }
 .tick-list li { display: flex; gap: 10px; align-items: flex-start; }
 .tick-list .icon { color: #E2B489; margin-top: .2em; }
+.tick-list-dark .icon { color: var(--copper); }
 .bulk-media { margin: 0; }
 .bulk-media img { width: 100%; border-radius: var(--radius); aspect-ratio: 3 / 2; object-fit: cover; }
 @media (min-width: 900px) { .bulk-inner { grid-template-columns: 1fr 1fr; gap: 56px; } }
@@ -919,8 +920,8 @@ textarea:focus-visible { outline: 3px solid var(--copper); outline-offset: 1px; 
 .callback-copy p { color: #D3DDE7; }
 @media (min-width: 900px) { .callback-inner { grid-template-columns: 1fr 1.1fr; gap: 56px; } }
 
-.callback-form { padding: 24px 18px; color: var(--text); }
-@media (min-width: 640px) { .callback-form { padding: 32px; } }
+.callback-form, .trade-form { padding: 24px 18px; color: var(--text); }
+@media (min-width: 640px) { .callback-form, .trade-form { padding: 32px; } }
 .field-row-even { grid-template-columns: 1fr; gap: 0 12px; }
 @media (min-width: 480px) { .field-row-even { grid-template-columns: 1fr 1fr; } }
 .field-error { margin: 6px 0 0; font-size: .875rem; font-weight: 500; color: #A52A21; }

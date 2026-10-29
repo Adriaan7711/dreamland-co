@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#1F4E79">
+  <title>Email signature – Dreamland Co.</title>
+
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="leads.css">
+  <style>
+    .sig-layout { display: grid; gap: 20px; align-items: start; }
+    @media (min-width: 900px) { .sig-layout { grid-template-columns: 340px minmax(0, 1fr); } }
+    .sig-card {
+      padding: 20px;
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+    .sig-card h2 { font-size: 1.3rem; margin-bottom: .6em; }
+    .sig-card .field { margin-bottom: 12px; }
+    .sig-card input { min-height: 46px; }
+    .sig-preview {
+      padding: 24px 18px;
+      margin-bottom: 14px;
+      overflow-x: auto;
+      background: var(--white);
+      border: 1px dashed #CFC8BD;
+      border-radius: var(--radius-sm);
+    }
+    .sig-warning {
+      margin: 0 0 14px;
+      padding: 10px 14px;
+      background: #FDF3E1;
+      border-radius: var(--radius-sm);
+      color: #7A4B0C;
+      font-size: .9rem;
+    }
+    .sig-howto details {
+      border-top: 1px solid var(--line);
+      padding: 12px 0;
+    }
+    .sig-howto summary {
+      cursor: pointer;
+      color: var(--navy);
+      font-weight: 600;
+      min-height: 32px;
+    }
+    .sig-howto ol, .sig-howto ul { margin: 10px 0 0; padding-left: 1.3em; }
+    .sig-howto li { margin-bottom: 6px; }
+    .sig-howto p { margin: 10px 0 0; }
+    .page-title { font-size: clamp(1.8rem, 5vw, 2.4rem); margin-bottom: .2em; }
+  </style>
+</head>
+<body class="leads-app">
+  <header class="app-header">
+    <div class="app-wrap app-header-inner">
+      <a class="wordmark" href="./" aria-label="Back to the lead tracker">
+        <svg class="wordmark-moon" viewBox="0 0 32 32" aria-hidden="true"><path d="M20.5 3.2A13 13 0 1 0 28.8 22 11 11 0 0 1 20.5 3.2Z" fill="currentColor"/><path d="M24 6.5l.8 1.9 1.9.8-1.9.8-.8 1.9-.8-1.9-1.9-.8 1.9-.8z" fill="currentColor"/></svg>
+        <span class="wordmark-text">Dreamland<span class="wordmark-co"> Co.</span></span>
+      </a>
+      <a class="link-btn" href="./">Lead tracker</a>
+    </div>
+  </header>
+
+  <main class="app-wrap screen">
+    <h1 class="page-title">Email signature</h1>
+    <p class="muted">Fill in your details, copy the signature, and paste it into Gmail or Zoho Mail. Instructions are at the bottom of this page.</p>
+
+    <div class="sig-layout">
+      <form class="sig-card" id="sig-form" autocomplete="off">
+        <h2>Your details</h2>
+        <label class="field"><span>Full name</span><input type="text" name="name" placeholder="Your Name"></label>
+        <label class="field"><span>Job title</span><input type="text" name="title" placeholder="Hospitality Sales"></label>
+        <label class="field"><span>Phone</span><input type="tel" name="phone" placeholder="082 000 0000"></label>
+        <label class="field"><span>Email address</span><input type="email" name="email" placeholder="you@YOUR-DOMAIN.co.za"></label>
+        <label class="field"><span>Website</span><input type="text" name="website" placeholder="YOUR-DOMAIN.co.za"></label>
+        <p class="muted small">Leave a box empty to show the placeholder. Your details are remembered on this device only.</p>
+      </form>
+
+      <section class="sig-card" aria-labelledby="preview-title">
+        <h2 id="preview-title">Preview</h2>
+        <p class="sig-warning" id="sig-warning" hidden></p>
+        <div class="sig-preview" id="sig-preview"></div>
+        <div class="button-row">
+          <button class="btn btn-primary btn-sm" type="button" id="copy-rich">Copy signature</button>
+          <button class="btn btn-outline btn-sm" type="button" id="copy-html">Copy HTML code</button>
+          <button class="btn btn-outline btn-sm" type="button" id="copy-text">Copy plain-text version</button>
+        </div>
+      </section>
+    </div>
+
+    <section class="sig-card sig-howto" style="margin-top:20px" aria-labelledby="howto-title">
+      <h2 id="howto-title">Adding it to your email</h2>
+      <p class="muted">Do this on a laptop or desktop computer. The signature editors are on the web versions of Gmail and Zoho Mail.</p>
+
+      <details open>
+        <summary>Gmail / Google Workspace</summary>
+        <ol>
+          <li>On this page, click <strong>Copy signature</strong>.</li>
+          <li>Open <strong>mail.google.com</strong> and sign in with the Dreamland address.</li>
+          <li>Click the <strong>gear icon</strong> (top right), then <strong>See all settings</strong>.</li>
+          <li>On the <strong>General</strong> tab, scroll down to <strong>Signature</strong> and click <strong>Create new</strong>. Name it <em>Dreamland</em>.</li>
+          <li>Click in the big signature box and paste (<strong>Ctrl+V</strong>, or <strong>Cmd+V</strong> on a Mac). The logo and colours should appear.</li>
+          <li>Under <strong>Signature defaults</strong>, choose <em>Dreamland</em> for both <strong>For new emails use</strong> and <strong>On reply/forward use</strong>.</li>
+          <li>Scroll to the very bottom and click <strong>Save Changes</strong>.</li>
+          <li>Send yourself a test email to check it.</li>
+        </ol>
+      </details>
+
+      <details>
+        <summary>Zoho Mail</summary>
+        <ol>
+          <li>On this page, click <strong>Copy signature</strong>.</li>
+          <li>Open <strong>mail.zoho.com</strong> and sign in with the Dreamland address.</li>
+          <li>Click the <strong>gear icon</strong> (Settings), then <strong>Signature</strong>. If you don't see it, type “signature” in the settings search box.</li>
+          <li>Click <strong>Add new signature</strong> (or the <strong>+</strong>). Name it <em>Dreamland</em>.</li>
+          <li>Click in the editor and paste (<strong>Ctrl+V</strong> / <strong>Cmd+V</strong>).
+            <br>If the formatting looks wrong, delete it, click <strong>Copy HTML code</strong> here instead, open the editor's <strong>Insert HTML</strong> or source-code option (the <strong>&lt;/&gt;</strong> icon), and paste it there.</li>
+          <li>Next to the signature, link it to your Dreamland <strong>From</strong> address, so it's added to new emails and replies.</li>
+          <li>Click <strong>Save</strong> and send yourself a test email.</li>
+        </ol>
+      </details>
+
+      <details>
+        <summary>On your phone</summary>
+        <p>The Gmail and Zoho Mail phone apps usually use their own, simpler signature rather than the one above. To keep emails sent from your phone looking right:</p>
+        <ul>
+          <li><strong>Gmail app:</strong> tap the menu (☰), then <strong>Settings</strong>, your Dreamland account, and <strong>Mobile signature</strong>. Paste the <strong>plain-text version</strong> from this page.</li>
+          <li><strong>Zoho Mail app:</strong> tap the menu, then <strong>Settings</strong>, your account, and <strong>Signature</strong>. If your signature from the web isn't there, paste the plain-text version.</li>
+          <li>The <strong>Email</strong> button in the lead tracker opens whichever email app is set as the default on the phone.</li>
+          <li>For an important first email with the full branded signature, send it from a laptop.</li>
+        </ul>
+      </details>
+
+      <details>
+        <summary>Logo not showing?</summary>
+        <ul>
+          <li>The logo loads from your website, so it only appears once the site is published. Open this page from your live site, not from a file on your computer, before you copy.</li>
+          <li>Some email programs hide images until the reader clicks <em>Show images</em>. The rest of the signature is ordinary text, so it still reads correctly.</li>
+          <li>When you connect your own domain later, open this page on the new address and copy the signature again. The logo link will then use your domain.</li>
+        </ul>
+      </details>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script>
+  (() => {
+    'use strict';
+
+    const PLACEHOLDERS = {
+      name: 'Your Name',
+      title: 'Hospitality Sales',
+      phone: '082 000 0000',
+      email: 'you@YOUR-DOMAIN.co.za',
+      website: 'YOUR-DOMAIN.co.za'
+    };
+    const C = {
+      navy: '#1F4E79', copper: '#B87333', copperInk: '#8E5320', grey: '#6B6F75', text: '#2A2F36',
+      firmness: ['#2C6CB0', '#2E8550', '#E0761C', '#C2352B']   // Soft, Medium, Firm, Extra Firm
+    };
+    const SANS = 'Arial, Helvetica, sans-serif';
+    const SERIF = "Georgia, 'Times New Roman', serif";
+    const STORE = 'dl-signature';
+
+    const form = document.getElementById('sig-form');
+    const preview = document.getElementById('sig-preview');
+    const warning = document.getElementById('sig-warning');
+    const toastEl = document.getElementById('toast');
+
+    // Hosted next to the site, so it works on GitHub Pages now and on your own domain later.
+    const logoUrl = new URL('../images/email-logo.png', location.href).href;
+
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => (
+      { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+    ));
+
+    function values() {
+      const d = {};
+      for (const k of Object.keys(PLACEHOLDERS)) d[k] = form.elements[k].value.trim() || PLACEHOLDERS[k];
+      return d;
+    }
+
+    // "082 123 4567" -> "+27821234567"
+    function intlPhone(p) {
+      const d = p.replace(/[^\d+]/g, '');
+      return d.startsWith('0') ? '+27' + d.slice(1) : d;
+    }
+
+    function siteUrl(w) {
+      return /^https?:\/\//i.test(w) ? w : 'https://' + w;
+    }
+    const siteLabel = (w) => w.replace(/^https?:\/\//i, '').replace(/\/$/, '');
+
+    function signatureHtml(d) {
+      const link = `color:${C.text};text-decoration:none;`;
+      const label = `color:${C.copperInk};font-weight:bold;`;
+      const site = siteUrl(d.website);
+      const strip = C.firmness.map((c, i) =>
+        `${i ? '<td width="4" style="width:4px;font-size:0;line-height:0;">&nbsp;</td>' : ''}` +
+        `<td width="22" height="4" bgcolor="${c}" style="width:22px;height:4px;background:${c};font-size:0;line-height:0;">&nbsp;</td>`
+      ).join('');
+
+      return `<table cellpadding="0" cellspacing="0" border="0" role="presentation" style="border-collapse:collapse;font-family:${SANS};color:${C.text};">
+  <tr>
+    <td valign="top" style="padding:2px 14px 0 0;">
+      <a href="${esc(site)}" style="text-decoration:none;"><img src="${esc(logoUrl)}" width="64" height="64" alt="Dreamland Co." style="display:block;width:64px;height:64px;border:0;border-radius:10px;"></a>
+    </td>
+    <td valign="top" style="padding:0 0 0 14px;border-left:2px solid ${C.copper};">
+      <div style="font-family:${SERIF};font-size:17px;font-weight:bold;line-height:1.3;color:${C.navy};">${esc(d.name)}</div>
+      <div style="font-family:${SANS};font-size:13px;line-height:1.4;color:${C.grey};">${esc(d.title)}</div>
+      <div style="font-family:${SERIF};font-size:13px;font-weight:bold;letter-spacing:2px;line-height:1.4;color:${C.navy};padding-top:8px;">DREAMLAND <span style="color:${C.copperInk};">CO.</span></div>
+      <div style="font-family:${SANS};font-size:12px;line-height:1.4;color:${C.grey};padding-bottom:6px;">Colour-coded pillows &middot; Your sleeping partner for life</div>
+      <div style="font-family:${SANS};font-size:13px;line-height:1.6;">
+        <span style="${label}">M</span>&nbsp;&nbsp;<a href="tel:${esc(intlPhone(d.phone))}" style="${link}">${esc(d.phone)}</a><br>
+        <span style="${label}">E</span>&nbsp;&nbsp;<a href="mailto:${esc(d.email)}" style="${link}">${esc(d.email)}</a><br>
+        <span style="${label}">W</span>&nbsp;&nbsp;<a href="${esc(site)}" style="${link}">${esc(siteLabel(d.website))}</a>
+      </div>
+      <table cellpadding="0" cellspacing="0" border="0" role="presentation" style="border-collapse:collapse;margin-top:8px;"><tr>${strip}</tr></table>
+    </td>
+  </tr>
+</table>`;
+    }
+
+    function signatureText(d) {
+      return [
+        d.name,
+        d.title,
+        'Dreamland Co. – Colour-coded pillows',
+        `M: ${d.phone}`,
+        `E: ${d.email}`,
+        `W: ${siteLabel(d.website)}`
+      ].join('\n');
+    }
+
+    function update() {
+      const d = values();
+      preview.innerHTML = signatureHtml(d);
+
+      const issues = [];
+      const missing = Object.keys(PLACEHOLDERS).filter((k) => d[k] === PLACEHOLDERS[k]);
+      if (missing.length) issues.push('Some boxes still show placeholders. Fill them in before you copy.');
+      if (/YOUR-DOMAIN/i.test(d.email + d.website)) issues.push('Swap “YOUR-DOMAIN” for your real domain once it’s registered.');
+      if (location.protocol === 'file:') issues.push('Open this page from your live website so the logo loads in emails.');
+      warning.textContent = issues.join(' ');
+      warning.hidden = !issues.length;
+
+      try {
+        const saved = {};
+        for (const k of Object.keys(PLACEHOLDERS)) saved[k] = form.elements[k].value;
+        localStorage.setItem(STORE, JSON.stringify(saved));
+      } catch (e) { /* private mode */ }
+    }
+
+    let toastTimer;
+    function toast(msg) {
+      toastEl.textContent = msg;
+      toastEl.hidden = false;
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => { toastEl.hidden = true; }, 3500);
+    }
+
+    // Fallback for browsers without the async clipboard API: select and copy.
+    function copyBySelecting(node) {
+      const range = document.createRange();
+      range.selectNodeContents(node);
+      const sel = getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      const ok = document.execCommand('copy');
+      sel.removeAllRanges();
+      return ok;
+    }
+
+    function copyTextBySelecting(text) {
+      const box = document.createElement('textarea');
+      box.value = text;
+      box.setAttribute('readonly', '');
+      box.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
+      document.body.appendChild(box);
+      box.select();
+      const ok = document.execCommand('copy');
+      box.remove();
+      return ok;
+    }
+
+    async function copy(kind) {
+      const d = values();
+      const html = signatureHtml(d);
+      const text = signatureText(d);
+      let ok = false;
+      try {
+        if (kind === 'rich') {
+          await navigator.clipboard.write([new ClipboardItem({
+            'text/html': new Blob([html], { type: 'text/html' }),
+            'text/plain': new Blob([text], { type: 'text/plain' })
+          })]);
+        } else {
+          await navigator.clipboard.writeText(kind === 'html' ? html : text);
+        }
+        ok = true;
+      } catch (e) {
+        // Older browsers, or the modern clipboard is blocked: fall back to select-and-copy.
+        ok = kind === 'rich' ? copyBySelecting(preview) : copyTextBySelecting(kind === 'html' ? html : text);
+      }
+      toast(!ok ? 'Your browser blocked copying. Select the preview with your mouse and press Ctrl+C.'
+        : kind === 'rich' ? 'Signature copied. Now paste it into your email settings.'
+          : kind === 'html' ? 'HTML code copied.' : 'Plain-text version copied.');
+    }
+
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORE) || '{}');
+      for (const k of Object.keys(PLACEHOLDERS)) if (saved[k]) form.elements[k].value = saved[k];
+    } catch (e) { /* private mode */ }
+
+    form.addEventListener('input', update);
+    form.addEventListener('submit', (e) => e.preventDefault());
+    document.getElementById('copy-rich').addEventListener('click', () => copy('rich'));
+    document.getElementById('copy-html').addEventListener('click', () => copy('html'));
+    document.getElementById('copy-text').addEventListener('click', () => copy('text'));
+    update();
+  })();
+  </script>
+</body>
+</html>

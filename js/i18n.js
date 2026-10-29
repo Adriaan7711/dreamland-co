@@ -55,6 +55,12 @@ window.DREAMLAND_I18N = {
     'cb.errorLink': 'Chat on WhatsApp',
     'cb.subject': 'Call back request – Dreamland Co. website',
 
+    'trade.err.business': 'Please enter the name of your business.',
+    'trade.err.contact': 'Please enter who we should ask for.',
+    'trade.success': "Thank you! We've received your enquiry and will be in touch soon.",
+    'trade.error': 'Sorry, your enquiry could not be sent. Please try again, or WhatsApp us instead:',
+    'trade.subject': 'Business enquiry – Dreamland Co. website',
+
     'wa.general': "Hi Dreamland Co., I'd like to place an order.",
     'wa.product': "Hi Dreamland Co., I'd like to order the {item} – {price}.",
     'wa.bulk': "Hi Dreamland Co., I'd like a quote for a bulk pillow order for my guesthouse / B&B / lodge / hotel.",
@@ -142,6 +148,18 @@ window.DREAMLAND_I18N = {
     'stock.all': 'Alle verkooppunte en nommers',
     'stock.intro': 'Wil jy eers voel voor jy koop? Besoek een van ons verkooppunte in Newcastle, Wakkerstroom, Standerton, Ermelo en Volksrust. Bel gerus vooraf om voorraad te bevestig.',
 
+    /* ---- Business enquiry (contact page) ---- */
+    'trade.title': "Gastehuis, B&B, lodge of hotel?",
+    'trade.intro': "Vertel ons 'n bietjie van jou besigheid en ons kom terug na jou met pryse vir jou kamers. Jy kan fermheidsvlakke meng en pas sodat elke gas 'n kussing kry waarvan hy hou.",
+    'trade.business': 'Naam van besigheid',
+    'trade.contact': 'Kontakpersoon',
+    'trade.msgHint': "bv. 12 kamers, meestal medium-kussings",
+    'trade.submit': 'Stuur navraag',
+    'trade.err.business': 'Vul asseblief die naam van jou besigheid in.',
+    'trade.err.contact': 'Vul asseblief in na wie ons moet vra.',
+    'trade.success': 'Dankie! Ons het jou navraag ontvang en sal binnekort met jou in verbinding tree.',
+    'trade.error': 'Jammer, jou navraag kon nie gestuur word nie. Probeer asseblief weer, of WhatsApp ons eerder:',
+
     /* ---- Request a call back ---- */
     'cb.eyebrow': 'Verkies jy om met iemand te praat?',
     'cb.title': 'Vra dat ons jou terugbel',
@@ -214,6 +232,7 @@ window.DREAMLAND_I18N = {
     'bulk.p3': 'Handel direk met die eienaars',
     'bulk.cta': "Vra vir 'n grootmaatkwotasie",
     'bulk.email': 'Stuur vir ons e-pos',
+    'bulk.form': "Stuur 'n besigheidsnavraag",
 
     /* ---- About page (EDIT: keep in step with the English story in about.html) ---- */
     'about.eyebrow': 'Oor ons',

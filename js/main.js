@@ -58,6 +58,9 @@
     root.querySelectorAll('[data-i18n-aria]').forEach(function (el) {
       originals.push({ el: el, type: 'aria', key: el.getAttribute('data-i18n-aria'), en: el.getAttribute('aria-label') });
     });
+    root.querySelectorAll('[data-i18n-placeholder]').forEach(function (el) {
+      originals.push({ el: el, type: 'placeholder', key: el.getAttribute('data-i18n-placeholder'), en: el.placeholder });
+    });
   }
 
   function translateStatic() {
@@ -68,6 +71,8 @@
         o.el.textContent = value;
       } else if (o.type === 'alt') {
         o.el.alt = value;
+      } else if (o.type === 'placeholder') {
+        o.el.placeholder = value;
       } else {
         o.el.setAttribute('aria-label', value);
       }
@@ -245,7 +250,7 @@
       b.setAttribute('aria-pressed', String(b.getAttribute('data-lang') === lang));
     });
     if (lastQuizResult) showQuizResult(lastQuizResult, false);
-    document.querySelectorAll('.callback-form').forEach(refreshCallbackMessages);
+    document.querySelectorAll('.callback-form, .trade-form').forEach(refreshCallbackMessages);
   }
 
   function readSavedLang() {
@@ -367,7 +372,9 @@
     first_name: { msg: 'cb.err.first', ok: function (v) { return v.length > 0; } },
     last_name: { msg: 'cb.err.last', ok: function (v) { return v.length > 0; } },
     email: { msg: 'cb.err.email', ok: function (v) { return EMAIL_RE.test(v); } },
-    phone: { msg: 'cb.err.phone', ok: isSouthAfricanPhone }
+    phone: { msg: 'cb.err.phone', ok: isSouthAfricanPhone },
+    business_name: { msg: 'trade.err.business', ok: function (v) { return v.length > 0; } },
+    contact_person: { msg: 'trade.err.contact', ok: function (v) { return v.length > 0; } }
   };
 
   function validateField(input) {
@@ -381,8 +388,12 @@
     return ok;
   }
 
+  // Forms can set their own messages: data-msg="trade" uses trade.success / trade.error,
+  // data-wa picks the WhatsApp message offered when sending fails.
   function setStatus(form, state) {
     var box = form.querySelector('.form-status');
+    var msg = form.getAttribute('data-msg') || 'cb';
+    var waKey = form.getAttribute('data-wa') || 'wa.callback';
     form.setAttribute('data-status', state || '');
     box.className = 'form-status' + (state ? ' is-' + state : '');
     if (!state || state === 'sending') {
@@ -392,9 +403,9 @@
     }
     box.hidden = false;
     if (state === 'success') {
-      box.textContent = t('cb.success');
+      box.textContent = t(msg + '.success');
     } else {
-      box.innerHTML = esc(t('cb.error')) + ' <a href="' + esc(waUrl(t('wa.callback'))) + '" target="_blank" rel="noopener">' +
+      box.innerHTML = esc(t(msg + '.error')) + ' <a href="' + esc(waUrl(t(waKey))) + '" target="_blank" rel="noopener">' +
         '<svg class="icon" aria-hidden="true"><use href="#i-whatsapp"/></svg>' + esc(t('cb.errorLink')) + '</a>';
     }
   }
@@ -405,14 +416,19 @@
     if (state) setStatus(form, state);
   }
 
-  document.querySelectorAll('.callback-form').forEach(function (form) {
-    var inputs = Array.prototype.slice.call(form.querySelectorAll('input[name]')).filter(function (i) { return CB_RULES[i.name]; });
-    var button = form.querySelector('[type="submit"]');
-
+  // Live validation for a form's required fields; returns those inputs.
+  function watchFields(form) {
+    var inputs = Array.prototype.slice.call(form.querySelectorAll('input[required]')).filter(function (i) { return CB_RULES[i.name]; });
     inputs.forEach(function (input) {
       input.addEventListener('blur', function () { if (input.value.trim()) validateField(input); });
       input.addEventListener('input', function () { if (input.getAttribute('aria-invalid') === 'true') validateField(input); });
     });
+    return inputs;
+  }
+
+  document.querySelectorAll('.callback-form').forEach(function (form) {
+    var inputs = watchFields(form);
+    var button = form.querySelector('[type="submit"]');
 
     form.addEventListener('submit', function (e) {
       e.preventDefault();
@@ -466,6 +482,106 @@
         })
         .catch(function () { setStatus(form, 'error'); })
         .then(function () { button.disabled = false; });
+    });
+  });
+
+  /* ------------------------------------------------------------------
+     Business enquiry form -> lead tracker (Supabase) + email (Web3Forms)
+     The enquiry lands in the lead tracker as a warm "Interested" lead and is
+     also emailed, so nothing is lost if one of the two is down.
+     ------------------------------------------------------------------ */
+  var LEADS_DB = window.DREAMLAND_CONFIG || {}; // from leads/config.js
+
+  function saveWarmLead(lead) {
+    var url = LEADS_DB.supabaseUrl || '';
+    var key = LEADS_DB.supabaseKey || '';
+    if (!url || !key || /YOUR-/.test(url + key)) return Promise.reject(new Error('lead tracker not set up yet (leads/config.js)'));
+    return fetch(url.replace(/\/+$/, '') + '/rest/v1/leads', {
+      method: 'POST',
+      headers: { 'apikey': key, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify(lead)
+    }).then(function (res) {
+      if (!res.ok) throw new Error('lead tracker said ' + res.status);
+    });
+  }
+
+  function emailEnquiry(fields) {
+    if (!WEB3FORMS_ACCESS_KEY || WEB3FORMS_ACCESS_KEY === 'PASTE_KEY_HERE') return Promise.reject(new Error('no Web3Forms key'));
+    var payload = {
+      access_key: WEB3FORMS_ACCESS_KEY,
+      subject: I18N.en['trade.subject'],
+      from_name: 'Dreamland Co. website',
+      language: lang === 'af' ? 'Afrikaans' : 'English',
+      botcheck: false
+    };
+    Object.keys(fields).forEach(function (k) { payload[k] = fields[k]; });
+    return fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(function (res) { return res.json(); })
+      .then(function (json) { if (!json.success) throw new Error(json.message || 'Web3Forms error'); });
+  }
+
+  document.querySelectorAll('.trade-form').forEach(function (form) {
+    var inputs = watchFields(form);
+    var button = form.querySelector('[type="submit"]');
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var invalid = inputs.filter(function (input) { return !validateField(input); });
+      if (invalid.length) {
+        invalid[0].focus();
+        return;
+      }
+      if (form.botcheck.checked) {
+        form.reset();
+        setStatus(form, 'success');
+        return;
+      }
+
+      var v = function (name) { return form.elements[name].value.trim(); };
+      var message = v('message');
+
+      button.disabled = true;
+      setStatus(form, 'sending');
+
+      var attempts = [
+        saveWarmLead({
+          business_name: v('business_name'),
+          contact_person: v('contact_person'),
+          phone: v('phone'),
+          email: v('email'),
+          town: v('town') || null,
+          notes: message ? 'Website enquiry: ' + message : null,
+          status: 'Interested',
+          source: 'Website form'
+        }),
+        emailEnquiry({
+          name: v('contact_person'),
+          business: v('business_name'),
+          email: v('email'),
+          phone: v('phone'),
+          town: v('town'),
+          message: message
+        })
+      ].map(function (p) {
+        return p.then(function () { return true; }, function (err) {
+          console.warn('Dreamland enquiry:', err.message);
+          return false;
+        });
+      });
+
+      Promise.all(attempts).then(function (ok) {
+        if (ok[0] || ok[1]) {
+          form.reset();
+          setStatus(form, 'success');
+        } else {
+          setStatus(form, 'error');
+        }
+        button.disabled = false;
+      });
     });
   });
 

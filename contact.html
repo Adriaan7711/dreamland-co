@@ -283,6 +283,62 @@
       </div>
     </section>
 
+    <section class="section" id="trade" aria-labelledby="trade-title">
+      <div class="container contact-layout">
+        <div class="reveal">
+          <p class="eyebrow" data-i18n="bulk.eyebrow">For hospitality</p>
+          <h2 id="trade-title" data-i18n="trade.title">Guesthouse, B&amp;B, lodge or hotel?</h2>
+          <p data-i18n="trade.intro">Tell us a little about your business and we'll get back to you with pricing for your rooms. You can mix and match firmness levels so every guest finds a pillow they like.</p>
+          <ul class="tick-list tick-list-dark">
+            <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span data-i18n="bulk.p1">Mix and match firmness levels per room</span></li>
+            <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span data-i18n="bulk.p2">Consistent quality across every bed</span></li>
+            <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span data-i18n="bulk.p3">Deal directly with the owners</span></li>
+          </ul>
+        </div>
+        <div class="reveal">
+        <!-- Business enquiry form: js/main.js saves it to the lead tracker (Supabase, see leads/config.js)
+             and also emails it through Web3Forms. -->
+        <form class="trade-form card" novalidate data-msg="trade" data-wa="wa.bulk" aria-labelledby="trade-title">
+          <div class="field">
+            <label for="tr-business" data-i18n="trade.business">Business name</label>
+            <input id="tr-business" name="business_name" type="text" autocomplete="organization" maxlength="150" required aria-describedby="tr-business-err">
+            <p class="field-error" id="tr-business-err" hidden></p>
+          </div>
+          <div class="field">
+            <label for="tr-contact" data-i18n="trade.contact">Contact person</label>
+            <input id="tr-contact" name="contact_person" type="text" autocomplete="name" maxlength="150" required aria-describedby="tr-contact-err">
+            <p class="field-error" id="tr-contact-err" hidden></p>
+          </div>
+          <div class="field-row field-row-even">
+            <div class="field">
+              <label for="tr-phone" data-i18n="cb.phone">Phone</label>
+              <input id="tr-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="082 123 4567" maxlength="40" required aria-describedby="tr-phone-err">
+              <p class="field-error" id="tr-phone-err" hidden></p>
+            </div>
+            <div class="field">
+              <label for="tr-email" data-i18n="cb.email">Email</label>
+              <input id="tr-email" name="email" type="email" autocomplete="email" maxlength="150" required aria-describedby="tr-email-err">
+              <p class="field-error" id="tr-email-err" hidden></p>
+            </div>
+          </div>
+          <div class="field">
+            <label for="tr-town" data-i18n="form.town">Town</label>
+            <input id="tr-town" name="town" type="text" autocomplete="address-level2" maxlength="100">
+          </div>
+          <div class="field">
+            <label for="tr-msg" data-i18n="form.msg">Message (optional)</label>
+            <textarea id="tr-msg" name="message" rows="3" maxlength="1500" data-i18n-placeholder="trade.msgHint" placeholder="e.g. 12 rooms, mostly medium pillows"></textarea>
+          </div>
+          <!-- Honeypot: hidden from people, bots fill it in. -->
+          <input type="checkbox" name="botcheck" class="hp-field" tabindex="-1" autocomplete="off" aria-hidden="true">
+          <button class="btn btn-primary btn-block" type="submit" data-i18n="trade.submit">Send enquiry</button>
+          <div class="form-status" role="status" aria-live="polite" hidden></div>
+          <p class="small muted form-privacy" data-i18n="cb.privacy">We'll only use your details to contact you about your enquiry.</p>
+        </form>
+        </div>
+      </div>
+    </section>
+
     <section class="section" id="stockists" aria-labelledby="stockists-title">
       <div class="container">
         <header class="section-head reveal">
@@ -334,6 +390,7 @@
     <svg aria-hidden="true"><use href="#i-whatsapp"/></svg>
   </a>
 
+  <script src="leads/config.js" defer></script>
   <script src="js/data.js" defer></script>
   <script src="js/i18n.js" defer></script>
   <script src="js/main.js" defer></script>
