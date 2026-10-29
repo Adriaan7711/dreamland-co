@@ -22,13 +22,15 @@
     },
     call: {
       filter: (l) => l.status === 'Not called' || l.status === 'Did not answer',
-      // Never-tried leads first (oldest import first), then the longest-ago attempts.
+      // Leads with a phone number first. Then never-tried leads (oldest import first),
+      // then the longest-ago attempts.
       sort: (a, b) => {
+        if (!a.phone !== !b.phone) return a.phone ? -1 : 1;
         if (!a.last_contacted !== !b.last_contacted) return a.last_contacted ? 1 : -1;
         if (a.last_contacted) return a.last_contacted.localeCompare(b.last_contacted);
         return (a.created_at || '').localeCompare(b.created_at || '');
       },
-      hint: 'Not called and did-not-answer leads, longest-waiting first.'
+      hint: 'Not called and did-not-answer leads, longest-waiting first. Leads without a phone number are at the end.'
     },
     warm: {
       filter: (l) => l.status === 'Interested' || (l.source === 'Website form' && l.status !== 'Opted out'),
@@ -49,12 +51,18 @@
       aliases: ['phone', 'phone number', 'telephone', 'tel', 'contact number', 'mobile', 'cell', 'cellphone', 'number'] },
     { key: 'email', label: 'Email',
       aliases: ['email', 'e-mail', 'email address', 'mail'] },
+    { key: 'other_emails', label: 'Other emails', extra: true,   // added to Email, not a column of its own
+      aliases: ['other emails', 'other email', 'additional emails', 'more emails'] },
     { key: 'town', label: 'Town',
       aliases: ['town', 'city', 'suburb', 'locality', 'location'] },
     { key: 'province', label: 'Province',
       aliases: ['province', 'region', 'state'] },
+    { key: 'address', label: 'Address',
+      aliases: ['address', 'street address', 'full address', 'physical address'] },
     { key: 'website', label: 'Website',
       aliases: ['website', 'web', 'url', 'site', 'website url', 'web address'] },
+    { key: 'maps_url', label: 'Google Maps link',
+      aliases: ['google maps link', 'google maps', 'maps link', 'maps url', 'map link', 'google maps url'] },
     { key: 'notes', label: 'Notes',
       aliases: ['notes', 'note', 'comments', 'comment'] }
   ];
@@ -158,7 +166,7 @@
     if (!v) return null;
     if (/b\s*&\s*b|\bbnb\b|bed\s*(and|&|n)\s*breakfast/.test(v)) return 'B&B';
     if (/guest\s*-?\s*house|guesthouse|gastehuis/.test(v)) return 'Guesthouse';
-    if (/lodge/.test(v)) return 'Lodge';
+    if (/\blodge\b/.test(v)) return 'Lodge';   // not Google's catch-all "Lodging"
     if (/hotel/.test(v)) return 'Hotel';
     return null;
   }
@@ -212,19 +220,26 @@
 
   const sb = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseKey);
 
+  // First page tells us the total; the remaining pages are fetched side by side.
   async function fetchAllLeads() {
-    const rows = [];
-    for (let from = 0; ; from += FETCH_BATCH) {
-      const { data, error } = await sb
-        .from('leads')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .order('id')
-        .range(from, from + FETCH_BATCH - 1);
+    const page = (from, opts) => sb
+      .from('leads')
+      .select('*', opts)
+      .order('created_at', { ascending: false })
+      .order('id')
+      .range(from, from + FETCH_BATCH - 1);
+
+    const first = await page(0, { count: 'exact' });
+    if (first.error) throw first.error;
+    const total = first.count ?? first.data.length;
+    const rest = [];
+    for (let from = FETCH_BATCH; from < total; from += FETCH_BATCH) rest.push(page(from));
+    const rows = first.data;
+    for (const { data, error } of await Promise.all(rest)) {
       if (error) throw error;
       rows.push(...data);
-      if (data.length < FETCH_BATCH) return rows;
     }
+    return rows;
   }
 
   async function loadLeads() {
@@ -238,13 +253,29 @@
   }
 
   // Keep every open copy of the app in step with changes made elsewhere.
+  // Changes are applied in small batches; a flood (someone importing thousands of leads)
+  // is quicker to handle by reloading the whole list once.
   function subscribe() {
     if (state.channel) return;
+    let queue = [];
     let pending;
-    state.channel = sb
-      .channel('leads-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'leads' }, (payload) => {
-        const { eventType, new: row, old } = payload;
+    let flooding = false;   // many changes arriving: wait until they stop, then reload once
+
+    function endFlood() {
+      flooding = false;
+      queue = [];
+      loadLeads();
+    }
+
+    function flush() {
+      const batch = queue;
+      queue = [];
+      if (batch.length > 50) {
+        flooding = true;
+        pending = setTimeout(endFlood, 3000);
+        return;
+      }
+      for (const { eventType, new: row, old } of batch) {
         const i = state.leads.findIndex((l) => l.id === (row?.id || old?.id));
         if (eventType === 'DELETE') {
           if (i > -1) state.leads.splice(i, 1);
@@ -253,8 +284,21 @@
         } else {
           state.leads.unshift(row);
         }
+      }
+      render();
+    }
+
+    state.channel = sb
+      .channel('leads-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'leads' }, (payload) => {
+        if (imp.dialog.dataset.busy) return;   // this device is importing; it reloads when done
         clearTimeout(pending);
-        pending = setTimeout(render, 150);
+        if (flooding) {
+          pending = setTimeout(endFlood, 3000);
+          return;
+        }
+        queue.push(payload);
+        pending = setTimeout(flush, 300);
       })
       .subscribe();
   }
@@ -315,7 +359,7 @@
 
   function matches(lead, q) {
     if (!q) return true;
-    const hay = [lead.business_name, lead.contact_person, lead.town, lead.province, lead.email, lead.phone, lead.business_type]
+    const hay = [lead.business_name, lead.contact_person, lead.town, lead.province, lead.email, lead.phone, lead.business_type, lead.address]
       .join(' ').toLowerCase();
     if (hay.includes(q)) return true;
     const digits = q.replace(/\D/g, '');
@@ -342,6 +386,19 @@
     try { return new URL(url).href; } catch (e) { return ''; }
   }
 
+  // The lead's own Google Maps link if it has one, otherwise a Maps search for it.
+  // On phones Google Maps links open the Maps app.
+  function mapsHref(l) {
+    const own = clean(l.maps_url);
+    if (/^https:\/\/(www\.)?(google\.[a-z.]+\/maps|maps\.google\.[a-z.]+|maps\.app\.goo\.gl|goo\.gl\/maps)/i.test(own)) return own;
+    const where = l.address || [l.town, l.province].filter(Boolean).join(', ');
+    if (!where) return '';
+    return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(`${l.business_name}, ${where}`);
+  }
+
+  // Google's ID for a place, used to spot the same business when a list is imported twice.
+  const placeKey = (url) => (String(url ?? '').match(/place_id[=:]([\w-]+)/i) || [])[1] || '';
+
   function actionLink(href, icon, label, { disabled, external, title } = {}) {
     if (!href) return '';
     const attrs = disabled
@@ -359,13 +416,15 @@
     const lines = [
       l.contact_person && `<li><span class="label">Contact:</span> ${esc(l.contact_person)}</li>`,
       l.phone && `<li><span class="label">Phone:</span> ${esc(l.phone)}</li>`,
-      l.email && `<li><span class="label">Email:</span> ${esc(l.email)}</li>`
+      l.email && `<li><span class="label">Email:</span> ${esc(l.email)}</li>`,
+      l.address && `<li><span class="label">Address:</span> ${esc(l.address)}</li>`
     ].filter(Boolean).join('');
     const blocked = { disabled: optedOut, title: optedOut ? 'Opted out: do not contact' : '' };
     const actions = [
       actionLink(telHref(l.phone), 'i-phone', 'Call', blocked),
       actionLink(mailHref(l.email, l.business_name), 'i-mail', 'Email', blocked),
-      actionLink(webHref(l.website), 'i-globe', 'Website', { external: true })
+      actionLink(webHref(l.website), 'i-globe', 'Website', { external: true }),
+      actionLink(mapsHref(l), 'i-map', 'Map', { external: true })
     ].join('');
     const options = STATUSES.map((s) => `<option${s === l.status ? ' selected' : ''}>${esc(s)}</option>`).join('');
     return `
@@ -419,16 +478,17 @@
     els.more.textContent = `Show more (${list.length - visible.length} left)`;
 
     const narrowed = state.query || state.status || state.province || state.town;
+    const n = (x) => x.toLocaleString('en-ZA');
     els.count.textContent = narrowed
-      ? `${list.length} of ${inView.length} match`
-      : `${inView.length} lead${inView.length === 1 ? '' : 's'}`;
+      ? `${n(list.length)} of ${n(inView.length)} match`
+      : `${n(inView.length)} lead${inView.length === 1 ? '' : 's'}`;
     els.clearFilters.hidden = !narrowed;
     els.hint.textContent = view.hint || '';
     els.hint.hidden = !view.hint;
 
     els.empty.hidden = list.length > 0;
     els.empty.textContent = state.leads.length === 0
-      ? 'No leads yet. Use “Import CSV” to upload your list.'
+      ? 'No leads yet. Use “Import” to upload your list.'
       : narrowed ? 'No leads match your search or filters.'
         : state.view === 'call' ? 'Nobody left to call. Nice work!'
           : 'No warm leads yet.';
@@ -437,13 +497,15 @@
   }
 
   function renderStats() {
-    const count = (fn) => state.leads.filter(fn).length;
-    $('#stat-total').textContent = state.leads.length;
+    const count = (fn) => state.leads.filter(fn).length.toLocaleString('en-ZA');
+    $('#stat-total').textContent = state.leads.length.toLocaleString('en-ZA');
     $('#stat-today').textContent = count((l) => isToday(l.last_contacted));
     $('#stat-interested').textContent = count((l) => l.status === 'Interested');
     $('#stat-not').textContent = count((l) => l.status === 'Not interested');
+    // Tabs are narrow on phones, so big numbers are shortened: 15 211 -> 15.2K.
+    const short = new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 });
     for (const [key, v] of Object.entries(VIEWS)) {
-      document.querySelector(`[data-count="${key}"]`).textContent = count(v.filter);
+      document.querySelector(`[data-count="${key}"]`).textContent = short.format(state.leads.filter(v.filter).length);
     }
   }
 
@@ -578,6 +640,9 @@
     file: $('#csv-file'),
     fileName: $('#csv-file-name'),
     fileError: $('#file-error'),
+    sheetField: $('#sheet-field'),
+    sheetSelect: $('#sheet-select'),
+    workbook: null,
     mapList: $('#map-list'),
     defaultType: $('#default-type'),
     summary: $('#summary-list'),
@@ -614,6 +679,8 @@
     imp.headers = [];
     imp.rows = [];
     imp.ready = [];
+    imp.workbook = null;
+    imp.sheetField.hidden = true;
     importStep('file');
   }
 
@@ -626,31 +693,95 @@
     if (e.target.closest('[data-close]')) imp.dialog.close();
   });
 
+  function showFileError(msg) {
+    imp.fileError.textContent = msg;
+    imp.fileError.hidden = false;
+    importStep('file');
+  }
+
+  function useTable(headers, rows) {
+    headers = headers.filter(Boolean);
+    if (!headers.length || !rows.length) {
+      showFileError('That file looks empty, or its first row has no column names.');
+      return;
+    }
+    imp.headers = headers;
+    imp.rows = rows;
+    buildMapping();
+    importStep('map');
+  }
+
+  // The Excel reader is only downloaded when someone picks an Excel file.
+  const SHEETJS_URL = 'https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js';
+  let sheetJs = null;
+  function loadSheetJs() {
+    sheetJs = sheetJs || new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = SHEETJS_URL;
+      s.onload = () => resolve(window.XLSX);
+      s.onerror = () => {
+        sheetJs = null;
+        reject(new Error('the Excel reader could not be downloaded. Check your internet connection and try again'));
+      };
+      document.head.appendChild(s);
+    });
+    return sheetJs;
+  }
+
+  function useSheet(name) {
+    const grid = window.XLSX.utils.sheet_to_json(imp.workbook.Sheets[name], { header: 1, defval: '', raw: false, blankrows: false });
+    const headers = (grid[0] || []).map(clean);
+    const rows = grid.slice(1).map((cells) => {
+      const row = {};
+      headers.forEach((h, i) => { if (h) row[h] = cells[i] ?? ''; });
+      return row;
+    });
+    useTable(headers, rows);
+  }
+
+  async function readExcel(file) {
+    imp.fileName.textContent = `${file.name} (reading…)`;
+    try {
+      const XLSX = await loadSheetJs();
+      imp.workbook = XLSX.read(await file.arrayBuffer());
+    } catch (err) {
+      showFileError('Could not read that file: ' + err.message + '.');
+      return;
+    } finally {
+      imp.fileName.textContent = file.name;
+    }
+    // Start on the sheet with the most rows (e.g. "Leads" rather than a summary sheet).
+    const sheets = imp.workbook.SheetNames.map((name) => {
+      const ref = imp.workbook.Sheets[name]['!ref'];
+      return { name, rows: ref ? window.XLSX.utils.decode_range(ref).e.r : 0 };
+    });
+    const biggest = sheets.reduce((a, b) => (b.rows > a.rows ? b : a));
+    imp.sheetSelect.innerHTML = sheets
+      .map((s) => `<option value="${esc(s.name)}">${esc(s.name)} (${s.rows.toLocaleString('en-ZA')} rows)</option>`).join('');
+    imp.sheetSelect.value = biggest.name;
+    imp.sheetField.hidden = sheets.length < 2;
+    useSheet(biggest.name);
+  }
+
+  imp.sheetSelect.addEventListener('change', () => useSheet(imp.sheetSelect.value));
+
   imp.file.addEventListener('change', () => {
     const file = imp.file.files[0];
     if (!file) return;
     imp.fileName.textContent = file.name;
     imp.fileError.hidden = true;
+    imp.sheetField.hidden = true;
+
+    if (/\.xlsx?$/i.test(file.name)) {
+      readExcel(file);
+      return;
+    }
     Papa.parse(file, {
       header: true,
       skipEmptyLines: 'greedy',
       transformHeader: (h) => clean(h),
-      complete: (res) => {
-        const headers = (res.meta.fields || []).filter(Boolean);
-        if (!headers.length || !res.data.length) {
-          imp.fileError.textContent = 'That file looks empty, or its first row has no column names.';
-          imp.fileError.hidden = false;
-          return;
-        }
-        imp.headers = headers;
-        imp.rows = res.data;
-        buildMapping();
-        importStep('map');
-      },
-      error: (err) => {
-        imp.fileError.textContent = 'Could not read that file: ' + err.message;
-        imp.fileError.hidden = false;
-      }
+      complete: (res) => useTable(res.meta.fields || [], res.data),
+      error: (err) => showFileError('Could not read that file: ' + err.message)
     });
   });
 
@@ -715,16 +846,20 @@
   });
 
   function prepareImport(map) {
-    const seenPhones = new Set();
-    const seenEmails = new Set();
+    // A row is a duplicate if it shares a phone number, an email address or a Google place
+    // with a lead already in the list, or with an earlier row in the file.
+    const seen = { phones: new Set(), emails: new Set(), places: new Set() };
     for (const l of state.leads) {
-      phoneKeys(l.phone).forEach((k) => seenPhones.add(k));
-      emailKeys(l.email).forEach((k) => seenEmails.add(k));
+      phoneKeys(l.phone).forEach((k) => seen.phones.add(k));
+      emailKeys(l.email).forEach((k) => seen.emails.add(k));
+      if (placeKey(l.maps_url)) seen.places.add(placeKey(l.maps_url));
     }
+    const inDb = { phones: new Set(seen.phones), emails: new Set(seen.emails), places: new Set(seen.places) };
+    const hits = (sets, keys) => keys.phones.some((k) => sets.phones.has(k)) ||
+      keys.emails.some((k) => sets.emails.has(k)) || keys.places.some((k) => sets.places.has(k));
 
     const defaultType = imp.defaultType.value || null;
     const counts = { noName: 0, existing: 0, inFile: 0 };
-    const fileStart = { phones: new Set(seenPhones), emails: new Set(seenEmails) };
     imp.ready = [];
 
     for (const row of imp.rows) {
@@ -732,27 +867,31 @@
       const name = get('business_name');
       if (!name) { counts.noName++; continue; }
 
-      const phones = phoneKeys(get('phone'));
-      const emails = emailKeys(get('email'));
-      const dupPhone = phones.some((k) => seenPhones.has(k));
-      const dupEmail = emails.some((k) => seenEmails.has(k));
-      if (dupPhone || dupEmail) {
-        const inDb = phones.some((k) => fileStart.phones.has(k)) || emails.some((k) => fileStart.emails.has(k));
-        counts[inDb ? 'existing' : 'inFile']++;
+      // Excel drops the leading 0 from numbers typed as 821234567.
+      const phone = /^[1-9]\d{8}$/.test(get('phone')) ? '0' + get('phone') : get('phone');
+      const emails = [...new Set(emailKeys(get('email')).concat(emailKeys(get('other_emails'))))];
+      const mapsUrl = get('maps_url');
+      const keys = { phones: phoneKeys(phone), emails, places: placeKey(mapsUrl) ? [placeKey(mapsUrl)] : [] };
+
+      if (hits(seen, keys)) {
+        counts[hits(inDb, keys) ? 'existing' : 'inFile']++;
         continue;
       }
-      phones.forEach((k) => seenPhones.add(k));
-      emails.forEach((k) => seenEmails.add(k));
+      keys.phones.forEach((k) => seen.phones.add(k));
+      keys.emails.forEach((k) => seen.emails.add(k));
+      keys.places.forEach((k) => seen.places.add(k));
 
       imp.ready.push({
         business_name: name,
         business_type: normType(get('business_type')) || defaultType,
         contact_person: get('contact_person') || null,
-        phone: get('phone') || null,
-        email: get('email') || null,
+        phone: phone || null,
+        email: emails.join('; ') || get('email') || null,
         town: get('town') || null,
         province: normProvince(get('province')),
+        address: get('address') || null,
         website: get('website') || null,
+        maps_url: mapsUrl || null,
         notes: get('notes') || null,
         source: 'Scraped list'
       });
@@ -761,13 +900,13 @@
     const n = imp.ready.length;
     imp.summary.innerHTML = [
       ['Rows in file', imp.rows.length],
-      ['Already in your list (same phone or email)', counts.existing],
+      ['Already in your list (same phone, email or Google Maps place)', counts.existing],
       ['Repeated within the file', counts.inFile],
       ['Missing a business name', counts.noName],
       ['New leads to import', n, true]
-    ].map(([label, num, main]) => `<li${main ? ' class="is-main"' : ''}><span>${label}</span><strong>${num}</strong></li>`).join('');
+    ].map(([label, num, main]) => `<li${main ? ' class="is-main"' : ''}><span>${label}</span><strong>${num.toLocaleString('en-ZA')}</strong></li>`).join('');
 
-    imp.go.textContent = n ? `Import ${n} lead${n === 1 ? '' : 's'}` : 'Nothing to import';
+    imp.go.textContent = n ? `Import ${n.toLocaleString('en-ZA')} lead${n === 1 ? '' : 's'}` : 'Nothing to import';
     imp.go.disabled = n === 0;
   }
 
@@ -797,8 +936,11 @@
       toast(`Imported ${done} lead${done === 1 ? '' : 's'}.`);
     } catch (err) {
       console.error(err);
-      imp.error.textContent = `Stopped after ${done} of ${rows.length} leads: ${err.message}. ` +
-        'You can import the same file again; leads already added will be skipped as duplicates.';
+      imp.error.textContent = /address|maps_url/.test(err.message)
+        ? 'Your database needs a small update before this file can be imported. ' +
+          'In Supabase, open SQL Editor and run leads/supabase-setup.sql again (see SETUP.md), then try again.'
+        : `Stopped after ${done} of ${rows.length} leads: ${err.message}. ` +
+          'You can import the same file again; leads already added will be skipped as duplicates.';
       imp.error.hidden = false;
     } finally {
       delete imp.dialog.dataset.busy;

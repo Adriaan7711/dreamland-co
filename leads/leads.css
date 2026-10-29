@@ -250,14 +250,16 @@ input[type="search"]:focus-visible { outline: 3px solid var(--copper); outline-o
 
 /* Call / email / website */
 .lead-actions {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   margin-top: 8px;
 }
 .lead-action {
+  flex: 1 1 auto;
   min-height: 48px;
-  padding: .5em .8em;
+  padding: .5em .75em;
+  gap: .4em;
   background: var(--white);
   border-color: var(--navy);
   color: var(--navy);

@@ -16,7 +16,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="../css/style.css">
-  <link rel="stylesheet" href="leads.css">
+  <link rel="stylesheet" href="leads.css?v=2">
 </head>
 <body class="leads-app">
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -26,6 +26,7 @@
     <symbol id="i-phone" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M5 3h3.5l1.8 4.5-2.3 1.4a11 11 0 0 0 7.1 7.1l1.4-2.3L21 15.5V19a2 2 0 0 1-2 2A16 16 0 0 1 3 5a2 2 0 0 1 2-2Z"/></symbol>
     <symbol id="i-mail" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 6.5 8.5 6.5 8.5-6.5"/></g></symbol>
     <symbol id="i-globe" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3Z"/></g></symbol>
+    <symbol id="i-map" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.1-7-11.5a7 7 0 0 1 14 0C19 14.9 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.5"/></g></symbol>
     <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
   </svg>
 
@@ -91,7 +92,7 @@
           <input type="search" id="search" placeholder="Search leads…" aria-label="Search leads" autocomplete="off">
         </label>
         <button class="btn btn-outline btn-sm" type="button" id="import-btn">
-          <svg class="btn-icon" aria-hidden="true"><use href="#i-upload"/></svg> Import CSV
+          <svg class="btn-icon" aria-hidden="true"><use href="#i-upload"/></svg> Import
         </button>
       </div>
 
@@ -123,17 +124,17 @@
   <!-- Import CSV -->
   <dialog class="sheet" id="import-dialog" aria-labelledby="import-title">
     <div class="sheet-head">
-      <h2 id="import-title">Import CSV</h2>
+      <h2 id="import-title">Import leads</h2>
       <button class="icon-btn" type="button" data-close aria-label="Close"><svg aria-hidden="true"><use href="#i-close"/></svg></button>
     </div>
 
     <div class="sheet-body">
       <!-- Step 1: pick a file -->
       <div id="import-step-file">
-        <p>Choose the CSV file with your scraped list. The first row must hold the column names.</p>
+        <p>Choose your list as an Excel (.xlsx) or CSV file. The first row must hold the column names.</p>
         <label class="file-drop">
-          <input type="file" id="csv-file" accept=".csv,text/csv">
-          <span class="btn btn-primary">Choose CSV file</span>
+          <input type="file" id="csv-file" accept=".csv,.xlsx,.xls,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel">
+          <span class="btn btn-primary">Choose file</span>
           <span class="muted" id="csv-file-name">No file chosen</span>
         </label>
         <p class="form-error" id="file-error" role="alert" hidden></p>
@@ -141,6 +142,10 @@
 
       <!-- Step 2: match columns -->
       <div id="import-step-map" hidden>
+        <label class="field" id="sheet-field" hidden>
+          <span>Sheet</span>
+          <select id="sheet-select"></select>
+        </label>
         <p>Match each lead field to a column in your file. We've guessed where we could, so please check them. The example comes from the first row.</p>
         <div class="map-list" id="map-list"></div>
 
@@ -176,7 +181,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-  <script src="config.js"></script>
-  <script src="app.js"></script>
+  <script src="config.js?v=2"></script>
+  <script src="app.js?v=2"></script>
 </body>
 </html>

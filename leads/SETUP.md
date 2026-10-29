@@ -80,7 +80,7 @@ Give the caller their email and password privately, for example in person or by 
 1. Push the changes to GitHub. Your site will update within a minute or two.
 2. Open **https://adriaan7711.github.io/dreamland-co/leads/** (or `yourdomain.co.za/leads/` once your own domain is connected).
 3. Log in with one of the users from Step 4.
-4. Click **Import CSV** to upload your scraped list.
+4. Click **Import** to upload your scraped list.
 
 **Tip for the caller's phone:** open the link in Chrome (Android) or Safari (iPhone) and choose **Add to Home screen**. The app then opens like a normal app. The caller stays logged in until they tap **Log out**.
 
@@ -88,15 +88,21 @@ Give the caller their email and password privately, for example in person or by 
 
 ## Importing your scraped list
 
-- Save your spreadsheet as **CSV** (in Excel: *File → Save As → CSV UTF-8*). The first row must hold the column names.
+- Use an **Excel file** (.xlsx) or a **CSV** file. The first row must hold the column names. If the Excel file has several sheets, the app picks the one with the most rows, and you can switch to another sheet.
 - After you choose the file, the app guesses which column is which. Check each one, and set any it missed. Only **Business name** is required.
-- If your list has no "type" column, or it says things like "Country house", pick what to use under **"Type for rows where it's blank or unclear"**.
+- **Google Maps link** and **Address** columns are imported too. Each lead then gets a **Map** button that opens the business in Google Maps (on a phone, in the Maps app). Leads without a link get a Map button that searches by name and address or town.
+- **Other emails** are added to the lead's email field. The Email button writes to the first address.
+- Types are matched to Guesthouse, Hotel, B&B or Lodge. Anything else, such as Google's general "Lodging", "Self-catering" or "House", is left blank, or set to what you pick under **"Type for rows where it's blank or unclear"**.
 - The app then shows how many rows are new and how many it will skip:
-  - **Already in your list:** the same phone number or email as an existing lead. `082 123 4567` and `+27 82 123 4567` count as the same number, and email capitals don't matter.
-  - **Repeated within the file:** the same phone or email appears twice in the CSV. Only the first one is kept.
+  - **Already in your list:** the same phone number, email or Google Maps place as an existing lead. `082 123 4567` and `+27 82 123 4567` count as the same number, and email capitals don't matter.
+  - **Repeated within the file:** the same phone, email or place appears twice in the file. Only the first one is kept.
   - **Missing a business name:** the row is skipped.
 - Province abbreviations such as `KZN`, `WC` and `GP` are expanded to the full province name automatically.
 - You can safely import the same file again later. Anything already imported is skipped.
+
+### One-off database update (October 2026)
+
+The Address and Google Maps link fields were added after you first set up Supabase. Before your first Excel import, open **SQL Editor** in Supabase, paste the whole of `leads/supabase-setup.sql` again, and click **Run**. It's safe to repeat, and it doesn't touch existing leads. If you skip this step, the import stops with a message telling you to do it.
 
 ## The website enquiry form
 

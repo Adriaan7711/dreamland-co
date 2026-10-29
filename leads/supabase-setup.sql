@@ -16,7 +16,9 @@ create table if not exists public.leads (
   email          text,
   town           text,
   province       text,
+  address        text,
   website        text,
+  maps_url       text,
   status         text not null default 'Not called'
                  check (status in ('Not called', 'Did not answer', 'Interested', 'Not interested', 'Opted out')),
   notes          text,
@@ -24,6 +26,10 @@ create table if not exists public.leads (
   source         text not null default 'Scraped list'
                  check (source in ('Scraped list', 'Website form'))
 );
+
+-- Added after the first version: street address and Google Maps link.
+alter table public.leads add column if not exists address text;
+alter table public.leads add column if not exists maps_url text;
 
 create index if not exists leads_status_idx on public.leads (status);
 
